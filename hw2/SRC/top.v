@@ -31,17 +31,16 @@ module top ( clk,
 	
 	/*PC*/
 	wire [bit_size-1:0] PCin;
-	//reg [bit_size-1:0] PCin = 18'b0000_0000_0000_0000_00;
 	wire [bit_size-1:0] PCout;
 	wire [bit_size-1:0] PCout_Plus4;
-	//reg [bit_size-1:0] PCout = 18'b0000_0000_0000_0000_00;
 	assign IM_Address = PCout [bit_size-1:2];//output IM_Address
-	assign PCout_Plus4 = PCout + 18'b0000_0000_0000_0001_00;
+	assign PCout_Plus4 = PCout + 18'b0000_0000_0000_0001_00;//PCout + 4
+
 	/*Controller*/
 	wire [5:0] opcode;
 	wire [5:0] funct;
 	wire RegDst, ALUSrc, MemWrite, MemRead, MemToReg, PCSrc;//RegWrite in Regfile
-	wire [2:0] ALUOp;
+	wire [3:0] ALUOp;
 	assign opcode = Instruction [31:26];
 	assign funct = Instruction [5:0];
 
@@ -55,27 +54,31 @@ module top ( clk,
 	wire [data_size-1:0] Write_data;
 	assign Read_addr_1 = Instruction[25:21];
 	assign Read_addr_2 = Instruction[20:16];
+
+	/*ALU*/
+	//wire [3:0] ALUOp;
+	wire [data_size-1:0] src1;
+	wire [data_size-1:0] src2;
+	wire [4:0] shamt;
+	wire [data_size-1:0] ALU_result;
+	wire Zero;
+	assign shamt = Instruction[10:6];
+	assign src1 = Read_data_1;
 	
-	
-	//initial begin
-		//#1
-	//end
-	//reg [5:0] i = 5'b000000;
-	//reg boo = 0;
+	integer i = 0;
 	always@(posedge clk, negedge rst)
 	begin
 		if(rst)
 		begin
-			//tPCin <= 18'b0000_0000_0000_0000_00;
-			//tPCout = 18'b0000_0000_0000_0000_00;
 			//$display("rst PCin %b", PCin);
 		end
 		else
 		begin
 			/****DEBUG****/
+			$display("%d", i); i = i + 1;
 			//$display("%b", Instruction);//get instruction
-			$display("opcode %b , funct %b", opcode, funct);//get opcode, funct
-			$display("$Rs    %b  , $Rt   %b\n", Read_addr_1, Read_addr_2);//get register
+			//$display("opcode %b , funct %b", opcode, funct);//get opcode, funct
+			//$display("$Rs    %b  , $Rt   %b\n", Read_addr_1, Read_addr_2);//get register
 			//$display("$Rs > %b , $Rt > %b", Read_data_1, Read_data_2);//get data in register
 			/****DEBUG****/
 		end
@@ -111,6 +114,15 @@ Regfile Regfile1(
 .RegWrite(RegWrite),
 .Write_addr(Write_addr),
 .Write_data(Write_data)
+);
+
+ALU ALU1(
+.ALUOp(ALUOp),
+.src1(src1),
+.src2(src2),
+.shamt(shamt),
+.ALU_result(ALU_result),
+.Zero(Zero)
 );
 
 endmodule
