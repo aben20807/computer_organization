@@ -41,6 +41,8 @@ module top ( clk,
 	/*Controller*/
 	wire [5:0] opcode;
 	wire [5:0] funct;
+	wire RegDst, ALUSrc, MemWrite, MemRead, MemToReg, PCSrc;//RegWrite in Regfile
+	wire [2:0] ALUOp;
 	assign opcode = Instruction [31:26];
 	assign funct = Instruction [5:0];
 
@@ -72,9 +74,10 @@ module top ( clk,
 		else
 		begin
 			/****DEBUG****/
-			$display("%b", Instruction);//get instruction
-			$display("$Rs : %b , $Rt : %b", Read_addr_1, Read_addr_2);//get register
-			$display("$Rs > %b , $Rt > %b", Read_data_1, Read_data_2);//get data in register
+			//$display("%b", Instruction);//get instruction
+			$display("opcode %b , funct %b", opcode, funct);//get opcode, funct
+			//$display("$Rs : %b , $Rt : %b", Read_addr_1, Read_addr_2);//get register
+			//$display("$Rs > %b , $Rt > %b", Read_data_1, Read_data_2);//get data in register
 			/****DEBUG****/
 			//tPCout <= PCout + 4;
 			//tPCin <= PCout + 18'b0000_0000_0000_0001_00;
@@ -94,7 +97,15 @@ PC PC1(
 
 Controller Controller1(
 	.opcode(opcode),
-	.funct(funct)
+	.funct(funct),
+	.RegDst(RegDst),
+	.RegWrite(RegWrite),
+	.ALUSrc(ALUSrc),
+	.ALUOp(ALUOp),
+	.MemWrite(MemWrite),
+	.MemRead(MemRead),
+	.MemToReg(MemToReg),
+	.PCSrc(PCSrc)
 );
 
 Regfile Regfile1(
