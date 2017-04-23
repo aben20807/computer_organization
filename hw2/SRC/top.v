@@ -45,8 +45,8 @@ module top ( clk,
 	assign funct = Instruction [5:0];
 
 	/*Regfile*/
-	wire [5:0] Read_addr_1;
-	wire [5:0] Read_addr_2;
+	wire [4:0] Read_addr_1;
+	wire [4:0] Read_addr_2;
 	wire [data_size-1:0]Read_data_1;
 	wire [data_size-1:0]Read_data_2;
 	wire RegWrite;
@@ -55,25 +55,33 @@ module top ( clk,
 	assign Read_addr_1 = Instruction[25:21];
 	assign Read_addr_2 = Instruction[20:16];
 	
+	
 	//initial begin
 		//#1
 	//end
 	//reg [5:0] i = 5'b000000;
+	//reg boo = 0;
 	always@(posedge clk, negedge rst)
 	begin
 		if(rst)
 		begin
 			tPCin <= 18'b0000_0000_0001_0000_00;
 			tPCout <= 18'b0000_0000_0001_0000_00;
-			$display("rst PCin %b\n", PCin);
+			$display("rst PCin %b", PCin);
 		end
 		else
 		begin
+			/****DEBUG****/
+			$display("%b", Instruction);//get instruction
+			$display("$Rs : %b , $Rt : %b", Read_addr_1, Read_addr_2);//get register
+			$display("$Rs > %b , $Rt > %b", Read_data_1, Read_data_2);//get data in register
+			/****DEBUG****/
 			//tPCout <= PCout + 4;
-			//tPCin <= PCout + 4;
-			//$display("%d : PCin %b\n", i, PCin);
+			//tPCin <= PCout + 18'b0000_0000_0000_0001_00;
+			
+			//$display("%d : PCin %b", i, PCin);
 			//i = i + 1;
-			//$display("clk call PCout %b\n", PCout);
+			//$display("clk call PCout %b", PCout);
 		end
 	end
 
@@ -88,18 +96,18 @@ Controller Controller1(
 	.opcode(opcode),
 	.funct(funct)
 );
-/*
+
 Regfile Regfile1(
 .clk(clk), 
 .rst(rst),
-.Read_addr_1,
-.Read_addr_2,
-.Read_data_1,
-.Read_data_2,
-.RegWrite,
-.Write_addr,
-.Write_data
-);*/
+.Read_addr_1(Read_addr_1),
+.Read_addr_2(Read_addr_2),
+.Read_data_1(Read_data_1),
+.Read_data_2(Read_data_2),
+.RegWrite(RegWrite),
+.Write_addr(Write_addr),
+.Write_data(Write_data)
+);
 
 endmodule
 

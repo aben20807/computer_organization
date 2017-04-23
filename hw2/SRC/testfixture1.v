@@ -56,7 +56,7 @@ top top1 (
 
 /***********/
 always@(posedge clk)begin
-	$display("%b -> %b\n", IM_Address, Instruction);
+	//$display("%b -> %b\n", IM_Address, Instruction);
 end
 /***********/
 
