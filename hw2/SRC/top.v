@@ -30,11 +30,12 @@ module top ( clk,
 	parameter bit_size = 18;
 	
 	/*PC*/
-	//wire [bit_size-1:0] PCin;
-	reg [bit_size-1:0] PCin;
+	wire [bit_size-1:0] PCin;
+	reg [bit_size-1:0] tPCin;
 	wire [bit_size-1:0] PCout;
 	reg [bit_size-1:0] tPCout;
 	assign IM_Address = PCout [bit_size-1:2];
+	assign PCin = tPCin;
 	assign PCout = tPCout;
 
 	/*Controller*/
@@ -53,17 +54,26 @@ module top ( clk,
 	wire [data_size-1:0] Write_data;
 	assign Read_addr_1 = Instruction[25:21];
 	assign Read_addr_2 = Instruction[20:16];
-
+	
+	//initial begin
+		//#1
+	//end
+	//reg [5:0] i = 5'b000000;
 	always@(posedge clk, negedge rst)
 	begin
-		if(!rst)
+		if(rst)
 		begin
-			PCin <= 18'b0000_0000_0000_0000_00;
+			tPCin <= 18'b0000_0000_0001_0000_00;
+			tPCout <= 18'b0000_0000_0001_0000_00;
+			$display("rst PCin %b\n", PCin);
 		end
 		else
 		begin
-			tPCout <= PCout + 4;
-			$display("%b qwer\n", Instruction);
+			//tPCout <= PCout + 4;
+			//tPCin <= PCout + 4;
+			//$display("%d : PCin %b\n", i, PCin);
+			//i = i + 1;
+			//$display("clk call PCout %b\n", PCout);
 		end
 	end
 
