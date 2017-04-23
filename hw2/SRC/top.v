@@ -1,5 +1,5 @@
 // top
-
+`timescale 1ns/10ps
 module top ( clk,
              rst,
 			// Instruction Memory
@@ -31,13 +31,12 @@ module top ( clk,
 	
 	/*PC*/
 	wire [bit_size-1:0] PCin;
-	reg [bit_size-1:0] tPCin;
+	//reg [bit_size-1:0] PCin = 18'b0000_0000_0000_0000_00;
 	wire [bit_size-1:0] PCout;
-	reg [bit_size-1:0] tPCout;
-	assign IM_Address = PCout [bit_size-1:2];
-	assign PCin = tPCin;
-	assign PCout = tPCout;
-
+	wire [bit_size-1:0] PCout_Plus4;
+	//reg [bit_size-1:0] PCout = 18'b0000_0000_0000_0000_00;
+	assign IM_Address = PCout [bit_size-1:2];//output IM_Address
+	assign PCout_Plus4 = PCout + 18'b0000_0000_0000_0001_00;
 	/*Controller*/
 	wire [5:0] opcode;
 	wire [5:0] funct;
@@ -67,31 +66,25 @@ module top ( clk,
 	begin
 		if(rst)
 		begin
-			tPCin <= 18'b0000_0000_0001_0000_00;
-			tPCout <= 18'b0000_0000_0001_0000_00;
-			$display("rst PCin %b", PCin);
+			//tPCin <= 18'b0000_0000_0000_0000_00;
+			//tPCout = 18'b0000_0000_0000_0000_00;
+			//$display("rst PCin %b", PCin);
 		end
 		else
 		begin
 			/****DEBUG****/
 			//$display("%b", Instruction);//get instruction
 			$display("opcode %b , funct %b", opcode, funct);//get opcode, funct
-			//$display("$Rs : %b , $Rt : %b", Read_addr_1, Read_addr_2);//get register
+			$display("$Rs    %b  , $Rt   %b\n", Read_addr_1, Read_addr_2);//get register
 			//$display("$Rs > %b , $Rt > %b", Read_data_1, Read_data_2);//get data in register
 			/****DEBUG****/
-			//tPCout <= PCout + 4;
-			//tPCin <= PCout + 18'b0000_0000_0000_0001_00;
-			
-			//$display("%d : PCin %b", i, PCin);
-			//i = i + 1;
-			//$display("clk call PCout %b", PCout);
 		end
 	end
 
 PC PC1(
 	.clk(clk), 
 	.rst(rst),
-	.PCin(PCin), 
+	.PCin(PCout_Plus4), 
 	.PCout(PCout)
 );
 

@@ -54,12 +54,6 @@ top top1 (
 .DM_Read_Data(DM_Read_Data)
 );
 
-/***********/
-always@(posedge clk)begin
-	//$display("%b -> %b\n", IM_Address, Instruction);
-end
-/***********/
-
 // clk part
 always #(`PERIOD/2) clk = ~clk;
 

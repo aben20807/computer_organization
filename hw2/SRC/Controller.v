@@ -28,7 +28,7 @@ module Controller ( opcode,
 		case(opcode)
 			6'b000000://R type RegDst, RegWrite
 			begin
-				$display("R");
+				$display("R type");
 				RegDst <= 1'b1;
 				RegWrite <= 1'b1;
 				ALUSrc <= 1'b0;
