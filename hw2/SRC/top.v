@@ -64,6 +64,14 @@ module top ( clk,
 	wire Zero;
 	assign shamt = Instruction[10:6];
 	assign src1 = Read_data_1;
+
+	/*Mux*/
+	wire [15:0] Immediate;
+	assign Immediate = Instruction[15:0];
+	/*Mux control*/
+	assign Write_addr = (RegDst == 1)? Instruction[15:11]: Instruction[20:16];//Rd(R):Rt(I)
+	assign src2 = (ALUSrc == 1)? Immediate: Read_data_2;//imm(I):Rt(R)
+	assign DM_enable = MemWrite;
 	
 	integer i = 0;
 	always@(posedge clk, negedge rst)
