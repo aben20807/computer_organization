@@ -11,14 +11,15 @@ module Controller ( opcode,
 					MemWrite,
 					MemRead,
 					MemToReg,
-					PCSrc
+					PCSrc,
+					Jal
 					);
 
 	input  [5:0] opcode;
     input  [5:0] funct;
 
 	// write your code in here
-	output RegDst, RegWrite, ALUSrc, MemWrite, MemRead, MemToReg, PCSrc;
+	output RegDst, RegWrite, ALUSrc, MemWrite, MemRead, MemToReg, PCSrc, Jal;
 	output [3:0] ALUOp;
 	reg RegDst, RegWrite, ALUSrc, MemWrite, MemRead, MemToReg, PCSrc;
 	reg [3:0] ALUOp;
@@ -80,7 +81,7 @@ module Controller ( opcode,
 				RegDst <= 1'b0;
 				RegWrite <= 1'b0;
 				ALUSrc <= 1'b0;
-				ALUOp <= 4'b0;
+				ALUOp <= 4'b0010;
 				MemWrite <= 1'b0;
 				MemRead <= 1'b0;
 				MemToReg <= 1'b0;
@@ -92,7 +93,7 @@ module Controller ( opcode,
 				RegDst <= 1'b0;
 				RegWrite <= 1'b0;
 				ALUSrc <= 1'b0;
-				ALUOp <= 4'b0;
+				ALUOp <= 4'b0000;
 				MemWrite <= 1'b0;
 				MemRead <= 1'b0;
 				MemToReg <= 1'b0;
@@ -182,7 +183,7 @@ module Controller ( opcode,
 				PCSrc <= 1'b0;
 			end
 		endcase
-		
+
 		if(opcode == 6'b000000)//R type
 		begin
 			case(funct)
@@ -249,9 +250,5 @@ module Controller ( opcode,
 			endcase
 		end
 	end
-	
+
 endmodule
-
-
-
-

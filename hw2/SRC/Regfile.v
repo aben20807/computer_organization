@@ -31,14 +31,18 @@ module Regfile ( clk,
 	begin
 		if(rst)
 		begin
-			for(i=0;i<32;i=i+1)
+			for(i = 0; i < 32; i = i + 1)
 				register[i] <= 5'd0;//clear address in every registers
+		end
+		else
+		begin
+			//$display(Write_data);
 		end
 	end
 
 	assign Read_data_1 = register[Read_addr_1];
 	assign Read_data_2 = register[Read_addr_2];
-	assign Write_data = (RegWrite == 1'b1)? register[Write_addr]: 32'b0;
+	assign Write_data = (RegWrite == 1'b1)? 0:1;//register[Write_addr]: 32'b0;
 
 endmodule
 

@@ -38,7 +38,8 @@ module ALU ( ALUOp,
 			begin
 				Zero <= 0;
 				ALU_result <= src1 + src2;
-			end			4'b0110://sub
+			end
+			4'b0110://sub
 			begin
 				if(src1 == src2)Zero <= 1;
 				else
@@ -97,8 +98,3 @@ module ALU ( ALUOp,
 	end
 
 endmodule
-
-
-
-
-
