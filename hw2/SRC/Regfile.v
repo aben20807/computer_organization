@@ -27,7 +27,7 @@ module Regfile ( clk,
 	reg [bit_size-1:0] register [0:31];//32 registers
 
 	integer i;
-	always@(posedge clk or posedge rst)
+	always@(posedge clk, posedge rst)
 	begin
 		if(rst)
 		begin
@@ -40,7 +40,7 @@ module Regfile ( clk,
 			//for(i = 0; i < 32; i = i + 1)
 			//	$display("%d, %b", i, register[i]);
 			//$display("Write_addr = %b, Write_data = %b\n", Write_addr, Write_data);
-			$display("$ra = %h\n", register[31]);
+			//$display("$ra = %h\n", register[31]);
 			/****DEBUG****/
 			if(RegWrite == 1 && Write_addr != 0)
 			begin
@@ -51,7 +51,5 @@ module Regfile ( clk,
 
 	assign Read_data_1 = register[Read_addr_1];
 	assign Read_data_2 = register[Read_addr_2];
-	//assign Write_data = (RegWrite == 1'b1)? 0:1;//register[Write_addr]: 32'b0;
-	//assign register[Write_addr] = (RegWrite == 1'b1)? Write_data: 0;
 
 endmodule

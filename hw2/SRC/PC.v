@@ -14,7 +14,7 @@ module PC ( clk,
 	// write your code in here
 	reg [bit_size-1:0] PCout = 18'b0000_0000_0000_0000_00;
 
-	always@(posedge clk or posedge rst)
+	always@(posedge clk, posedge rst)
 	begin
 		if(rst)
 		begin

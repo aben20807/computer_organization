@@ -21,22 +21,22 @@ module Jump_Ctrl( Zero,
     begin
         if(Branch == 1 && Zero == 1)
         begin
-            $display("JUMP_TO_BRANCH");
+            //$display("JUMP_TO_BRANCH");
             JumpOP = JUMP_TO_BRANCH;
         end
         else if(Jr == 1)
         begin
-            $display("JUMP_TO_JR");
+            //$display("JUMP_TO_JR");
             JumpOP = JUMP_TO_JR;
         end
         else if(Jump == 1)
         begin
-            $display("JUMP_TO_JUMP");
+            //$display("JUMP_TO_JUMP");
             JumpOP = JUMP_TO_JUMP;
         end
         else
         begin
-            $display("JUMP_TO_PCOUT_PLUS4");
+            //$display("JUMP_TO_PCOUT_PLUS4");
             JumpOP = JUMP_TO_PCOUT_PLUS4;
         end
     end

@@ -130,12 +130,12 @@ module Controller ( opcode,
 			end
 			6'b000010://j
 			begin
-				$display("Controller j");
+				//$display("Controller j");
 				Jump 		= 1'b1;
 			end
 			6'b000011://jal
 			begin
-				$display("Controller jal");
+				//$display("Controller jal");
 				RegWrite 	= 1'b1;
 				Jump 		= 1'b1;
 				Jal 		= 1'b1;
@@ -221,7 +221,7 @@ module Controller ( opcode,
 				//$display("Controller jr");
 				Jr 			= 1'b1;
 			end
-			6'b001001://jalr
+			6'b001001://jalr = jal + jr
 			begin
 				//$display("Controller jalr");
 				RegWrite 	= 1'b1;

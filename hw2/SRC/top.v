@@ -42,16 +42,17 @@ module top ( clk,
 	wire [3:0] ALUOp;
 
 	/*Regfile*/
-	//wire [4:0] Read_addr_1;
-	//wire [4:0] Read_addr_2;
 	wire [data_size-1:0]Read_data_1;
 	wire [data_size-1:0]Read_data_2;
 	wire RegWrite;
 	wire [4:0] Write_addr;
 	wire [data_size-1:0] Write_data;
+    wire [mem_size-1:0] Immediate;
+	wire [4:0] Rs;
+	wire [4:0] Rt;
+	wire [4:0] Rd;
 
 	/*ALU*/
-	//wire [3:0] ALUOp;
 	wire [data_size-1:0] src1;
 	wire [data_size-1:0] src2;
 	wire [4:0] shamt;
@@ -59,10 +60,6 @@ module top ( clk,
 	wire Zero;
 
 	/*Mux*/
-	wire [mem_size-1:0] Immediate;
-	wire [4:0] Rs;
-	wire [4:0] Rt;
-	wire [4:0] Rd;
 	wire [4:0] Mux_RegDst_out;
 	wire [data_size-1:0] Mux_MemToReg_out;
     wire [data_size-1:0] Mux_lh_out;
@@ -77,16 +74,9 @@ module top ( clk,
     wire [bit_size-1:0] Jump_Addr;
     wire [bit_size-1:0] Branch_Addr;
 
-	/*Mux control*/
-	//assign Write_addr = (RegDst == 1)? Instruction[15:11]: Instruction[20:16];//Rd(R):Rt(I)
-	//assign src2 = (ALUSrc == 1)? Immediate: Read_data_2;//imm(I):Rt(R)
-	//assign DM_enable = MemWrite;
-
 	/*wire connect*/
 	/*PC*/
 	assign IM_Address = PCout [bit_size-1:2];//output IM_Address
-	//assign PCout_Plus4 = PCout + 18'b0000_0000_0000_0001_00;//PCout + 4
-    //assign PCout_Plus8 = PCout + 18'b0000_0000_0000_0010_00;//PCout + 8
 
     /*Controller*/
 	assign opcode = Instruction [31:26];
@@ -94,8 +84,6 @@ module top ( clk,
     assign DM_enable = MemWrite;
 
 	/*Regfile*/
-	//assign Read_addr_1 = Instruction[25:21];
-	//assign Read_addr_2 = Instruction[20:16];
 	assign Immediate = Instruction[15:0];
 	assign Rs = Instruction[25:21];
 	assign Rt = Instruction[20:16];
@@ -114,7 +102,7 @@ module top ( clk,
     assign Jump_Addr = ({Immediate, 2'b0});
 
 	integer i = 0;
-	always@(posedge clk or posedge rst)
+	always@(posedge clk, posedge rst)
 	begin
 		if(rst)
 		begin
@@ -125,16 +113,15 @@ module top ( clk,
 			/****DEBUG****/
 			//$display("%d", i); i = i + 1;
 			//$display(Write_addr);
-			$display("%h", Instruction);//get instruction
-            $display("PC %h", PCout);
+			//$display("%h", Instruction);//get instruction
+            //$display("PC %h", PCout);
             //$display("opcode %b , funct %b", opcode, funct);//get opcode, funct
 			//$display("$Rs    %b  , $Rt   %b\n", Rs, Rt);//get register
-		//	$display("$Rs_data = %b , $Rt_data = %b", Read_data_1, Read_data_2);//get data in register
-        //    $display("Immediate = %b", Immediate);
+		    //$display("$Rs_data = %b , $Rt_data = %b", Read_data_1, Read_data_2);//get data in register
+            //$display("Immediate = %b", Immediate);
             //$display("ALUOp = %b", ALUOp);
-        //    $display("ALU_result = %b", ALU_result);
-        //    $display("DM_Address = %b, DM_Write_Data = %b\n", DM_Address, DM_Write_Data);
-        //    $display("PCin = %b", PCin);
+            //$display("ALU_result = %b", ALU_result);
+            //$display("DM_Address = %b, DM_Write_Data = %b\n", DM_Address, DM_Write_Data);
             /****DEBUG****/
 		end
 	end
