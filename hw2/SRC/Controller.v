@@ -12,240 +12,226 @@ module Controller ( opcode,
 					MemRead,
 					MemToReg,
 					PCSrc,
-					Jal
+					Jump,
+					Jal,
+					Jr
 					);
 
 	input  [5:0] opcode;
     input  [5:0] funct;
 
 	// write your code in here
-	output RegDst, RegWrite, ALUSrc, MemWrite, MemRead, MemToReg, PCSrc, Jal;
+	output RegDst, RegWrite, ALUSrc, MemWrite, MemRead, MemToReg, PCSrc, Jump, Jal, Jr;
 	output [3:0] ALUOp;
-	reg RegDst, RegWrite, ALUSrc, MemWrite, MemRead, MemToReg, PCSrc;
+	reg RegDst, RegWrite, ALUSrc, MemWrite, MemRead, MemToReg, PCSrc, Jump, Jal, Jr;
 	reg [3:0] ALUOp;
+
+	/*ALUSrc*/
+	parameter   DATA_FROM_IMM = 0,
+				DATA_FROM_REG = 1;
+	/*ALUOp*/
+	parameter OP_AND = 0,
+			  OP_OR = 1,
+			  OP_ADD = 3,
+			  //OP_MUL = 4;
+			  //OP_DIV = 5;
+			  OP_SUB = 6,
+			  OP_SLT = 7,
+			  OP_XOR = 8,
+			  //OP_NOT = 9,
+			  OP_BEQ = 10,
+			  OP_BNE = 11,
+			  OP_NOR = 12,
+			  OP_SLL = 13,
+			  OP_SRL = 14,
+			  OP_NOP = 15;
 
 	always@(*)
 	begin
+		RegDst 		= 1'b0;
+		RegWrite 	= 1'b0;
+		ALUSrc 		= DATA_FROM_REG;
+		ALUOp 		= OP_NOP;
+		MemWrite 	= 1'b0;
+		MemRead 	= 1'b0;
+		MemToReg 	= 1'b0;
+		PCSrc 		= 1'b0;
+		Jump		= 1'b0;
+		Jal 		= 1'b0;
+		Jr 			= 1'b0;
 		case(opcode)
 			6'b000000://R type RegDst, RegWrite
 			begin
-				//$display("Controller R type");
-				RegDst <= 1'b1;
-				RegWrite <= 1'b1;
-				ALUSrc <= 1'b0;
-				ALUOp <= 4'b0;//define by funct
-				MemWrite <= 1'b0;
-				MemRead <= 1'b0;
-				MemToReg <= 1'b0;
-				PCSrc <= 1'b0;
+				//ALUOp 		= OP_NOP;
+			// 	//$display("Controller R type");
+			 	//RegDst <= 1'b1;
+			// 	RegWrite <= 1'b1;
+			// 	ALUSrc <= 1'b0;
+			// 	ALUOp <= 4'b0;//define by funct
+			// 	MemWrite <= 1'b0;
+			// 	MemRead <= 1'b0;
+			// 	MemToReg <= 1'b0;
+			// 	PCSrc <= 1'b0;
 			end
 			6'b100011://lw RegWrite, ALUSrc, MemRead, MemToReg
 			begin
 				$display("Controller lw");
-				RegDst <= 1'b0;
-				RegWrite <= 1'b1;
-				ALUSrc <= 1'b1;
-				ALUOp <= 4'b0010;
-				MemWrite <= 1'b0;
-				MemRead <= 1'b1;
-				MemToReg <= 1'b1;
-				PCSrc <= 1'b0;
+				RegWrite 	= 1'b1;
+				ALUSrc 		= DATA_FROM_IMM;
+				ALUOp 		= OP_ADD;
+				MemRead 	= 1'b1;
+				MemToReg 	= 1'b1;
 			end
 			6'b101011://sw ALUSrc, MemWrite
 			begin
 				$display("Controller sw");
-				RegDst <= 1'b0;
-				RegWrite <= 1'b0;
-				ALUSrc <= 1'b1;
-				ALUOp <= 4'b0010;
-				MemWrite <= 1'b1;
-				MemRead <= 1'b0;
-				MemToReg <= 1'b0;
-				PCSrc <= 1'b0;
+				ALUSrc 		= DATA_FROM_IMM;
+				ALUOp 		= OP_ADD;
+				MemWrite 	= 1'b1;
 			end
 			6'b000100://beq PCSrc(Branch)
 			begin
 				$display("Controller beq");
-				RegDst <= 1'b0;
-				RegWrite <= 1'b0;
-				ALUSrc <= 1'b0;
-				ALUOp <= 4'b0110;
-				MemWrite <= 1'b0;
-				MemRead <= 1'b0;
-				MemToReg <= 1'b0;
-				PCSrc <= 1'b1;
+				ALUOp 		= OP_BEQ;
+				PCSrc 		= 1'b1;
 			end
 			6'b001000://addi
 			begin
-				$display("Controller addi");////TODO
-				RegDst <= 1'b0;
-				RegWrite <= 1'b0;
-				ALUSrc <= 1'b0;
-				ALUOp <= 4'b0010;
-				MemWrite <= 1'b0;
-				MemRead <= 1'b0;
-				MemToReg <= 1'b0;
-				PCSrc <= 1'b0;
+				$display("Controller addi");
+				RegWrite 	= 1'b1;
+				ALUSrc 		= DATA_FROM_IMM;
+				ALUOp 		= OP_ADD;
 			end
 			6'b001100://andi
 			begin
-				$display("Controller andi");////TODO
-				RegDst <= 1'b0;
-				RegWrite <= 1'b0;
-				ALUSrc <= 1'b0;
-				ALUOp <= 4'b0000;
-				MemWrite <= 1'b0;
-				MemRead <= 1'b0;
-				MemToReg <= 1'b0;
-				PCSrc <= 1'b0;
+				$display("Controller andi");
+				RegWrite 	= 1'b1;
+				ALUSrc 		= DATA_FROM_IMM;
+				ALUOp 		= OP_AND;
 			end
 			6'b001010://slti
 			begin
-				$display("Controller slti");////TODO
-				RegDst <= 1'b0;
-				RegWrite <= 1'b0;
-				ALUSrc <= 1'b0;
-				ALUOp <= 4'b0;
-				MemWrite <= 1'b0;
-				MemRead <= 1'b0;
-				MemToReg <= 1'b0;
-				PCSrc <= 1'b0;
+				$display("Controller slti");
+				RegWrite 	= 1'b1;
+				ALUSrc 		= DATA_FROM_IMM;
+				ALUOp 		= OP_SLT;
 			end
 			6'b000101://bne
 			begin
-				$display("Controller bne");////TODO
-				RegDst <= 1'b0;
-				RegWrite <= 1'b0;
-				ALUSrc <= 1'b0;
-				ALUOp <= 4'b0;
-				MemWrite <= 1'b0;
-				MemRead <= 1'b0;
-				MemToReg <= 1'b0;
-				PCSrc <= 1'b0;
+				$display("Controller bne");
+				ALUOp 		= OP_BNE;
+				PCSrc 		= 1'b1;
 			end
-			6'b100001://lh
-			begin
-				$display("Controller lh");////TODO
-				RegDst <= 1'b0;
-				RegWrite <= 1'b0;
-				ALUSrc <= 1'b0;
-				ALUOp <= 4'b0;
-				MemWrite <= 1'b0;
-				MemRead <= 1'b0;
-				MemToReg <= 1'b0;
-				PCSrc <= 1'b0;
-			end
-			6'b101001://sh
-			begin
-				$display("Controller sh");////TODO
-				RegDst <= 1'b0;
-				RegWrite <= 1'b0;
-				ALUSrc <= 1'b0;
-				ALUOp <= 4'b0;
-				MemWrite <= 1'b0;
-				MemRead <= 1'b0;
-				MemToReg <= 1'b0;
-				PCSrc <= 1'b0;
-			end
+			// 6'b100001://lh
+			// begin
+			// 	//$display("Controller lh");////TODO
+			// end
+			// 6'b101001://sh
+			// begin
+			// 	//$display("Controller sh");////TODO
+			// end
 			6'b000010://j
 			begin
-				$display("Controller j");////TODO
-				RegDst <= 1'b0;
-				RegWrite <= 1'b0;
-				ALUSrc <= 1'b0;
-				ALUOp <= 4'b0;
-				MemWrite <= 1'b0;
-				MemRead <= 1'b0;
-				MemToReg <= 1'b0;
-				PCSrc <= 1'b0;
+				$display("Controller j");
+				Jump 		= 1'b1;
 			end
 			6'b000011://jal
 			begin
-				$display("Controller jal");////TODO
-				RegDst <= 1'b0;
-				RegWrite <= 1'b0;
-				ALUSrc <= 1'b0;
-				ALUOp <= 4'b0;
-				MemWrite <= 1'b0;
-				MemRead <= 1'b0;
-				MemToReg <= 1'b0;
-				PCSrc <= 1'b0;
+				$display("Controller jal");
+				RegWrite 	= 1'b1;
+				Jump 		= 1'b1;
+				Jal 		= 1'b1;
 			end
 			default:
 			begin
-				RegDst <= 1'b0;
-				RegWrite <= 1'b0;
-				ALUSrc <= 1'b0;
-				ALUOp <= 4'b0;
-				MemWrite <= 1'b0;
-				MemRead <= 1'b0;
-				MemToReg <= 1'b0;
-				PCSrc <= 1'b0;
+				RegDst 		= 1'b0;
+				RegWrite 	= 1'b0;
+				ALUSrc 		= DATA_FROM_REG;
+				ALUOp 		= OP_NOP;
+				MemWrite 	= 1'b0;
+				MemRead 	= 1'b0;
+				MemToReg 	= 1'b0;
+				PCSrc 		= 1'b0;
+				Jump		= 1'b0;
+				Jal 		= 1'b0;
+				Jr 			= 1'b0;
 			end
 		endcase
 
 		if(opcode == 6'b000000)//R type
 		begin
+			RegDst 			= 1'b1;
+			ALUSrc 			= DATA_FROM_REG;
 			case(funct)
 			6'b100000://add
 			begin
 				$display("Controller add");
-				ALUOp <= 4'b0010;
+				ALUOp 		= OP_ADD;
+				RegWrite 	= 1'b1;
 			end
 			6'b100010://sub
 			begin
 				$display("Controller sub");
-				ALUOp <= 4'b0110;
+				ALUOp 		= OP_SUB;
+				RegWrite 	= 1'b1;
 			end
 			6'b100100://and
 			begin
 				$display("Controller and");
-				ALUOp <= 4'b0000;
+				ALUOp 		= OP_AND;
+				RegWrite 	= 1'b1;
 			end
 			6'b100101://or
 			begin
 				$display("Controller or");
-				ALUOp <= 4'b0001;
+				ALUOp 		= OP_OR;
+				RegWrite 	= 1'b1;
 			end
 			6'b100110://xor
 			begin
 				$display("Controller xor");
-				ALUOp <= 4'b1000;
+				ALUOp 		= OP_XOR;
+				RegWrite 	= 1'b1;
 			end
 			6'b100111://nor
 			begin
 				$display("Controller nor");
-				ALUOp <= 4'b1100;
+				ALUOp 		= OP_NOR;
+				RegWrite 	= 1'b1;
 			end
 			6'b101010://slt
 			begin
 				$display("Controller slt");
-				ALUOp <= 4'b0111;
+				ALUOp 		= OP_SLT;
+				RegWrite 	= 1'b1;
 			end
 			6'b000000://sll, shamt != 0
 			begin
 				$display("Controller sll");
-				ALUOp <= 4'b1010;
+				ALUOp 		= OP_SLL;
+				RegWrite 	= 1'b1;
+
 			end
 			6'b000010://srl
 			begin
 				$display("Controller srl");
-				ALUOp <= 4'b1011;
+				ALUOp 		= OP_SRL;
+				RegWrite 	= 1'b1;
 			end
 			6'b001000://jr
 			begin
 				$display("Controller jr");
-				ALUOp <= 4'b1101;
+				Jr 			= 1'b1;
 			end
-			6'b001001://jalr
-			begin
-				$display("Controller jalr");
-				ALUOp <= 4'b1110;
-			end
+			// 6'b001001://jalr
+			// begin
+			// 	//$display("Controller jalr");
+			// 	ALUOp <= OP_JALR;
+			// end
 			default:
 			begin
-				$display("NO defined R !!!!");
-				ALUOp <= 4'b0;
+				//$display("NO defined R !!!!");
+				ALUOp 		= OP_NOP;
 			end
 			endcase
 		end

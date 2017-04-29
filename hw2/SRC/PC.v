@@ -1,20 +1,20 @@
 // Program Counter
 
-module PC ( clk, 
+module PC ( clk,
 			rst,
-			PCin, 
+			PCin,
 			PCout);
-	
+
 	parameter bit_size = 18;
-	
+
 	input  clk, rst;
 	input  [bit_size-1:0] PCin;
 	output [bit_size-1:0] PCout;
-	
+
 	// write your code in here
 	reg [bit_size-1:0] PCout = 18'b0000_0000_0000_0000_00;
-	
-	always@(posedge clk, negedge rst)
+
+	always@(posedge clk or posedge rst)
 	begin
 		if(rst)
 		begin
@@ -28,4 +28,3 @@ module PC ( clk,
 		end
 	end
 endmodule
-
