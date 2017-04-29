@@ -13,6 +13,15 @@ module Mux2to1_32bit ( I0,
 
 	output [bit_size-1:0] out;
 
-	assign out = (S == 1)? I1: I0;
+	reg [bit_size-1:0] out;
+
+	always@(*)
+	begin
+		out = 0;
+		case(S)
+			0: out = I0;
+			1: out = I1;
+		endcase
+	end
 
 endmodule

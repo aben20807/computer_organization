@@ -12,7 +12,15 @@ module Mux2to1_5bit ( I0,
 	input S;
 
 	output [bit_size-1:0] out;
+	reg [bit_size-1:0] out;
 
-	assign out = (S == 1)? I1: I0;
+	always@(*)
+	begin
+		out = 0;
+		case(S)
+			0: out = I0;
+			1: out = I1;
+		endcase
+	end
 
 endmodule

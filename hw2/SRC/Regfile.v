@@ -40,6 +40,7 @@ module Regfile ( clk,
 			//for(i = 0; i < 32; i = i + 1)
 			//	$display("%d, %b", i, register[i]);
 			//$display("Write_addr = %b, Write_data = %b\n", Write_addr, Write_data);
+			$display("$ra = %h\n", register[31]);
 			/****DEBUG****/
 			if(RegWrite == 1 && Write_addr != 0)
 			begin

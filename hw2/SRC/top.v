@@ -38,7 +38,7 @@ module top ( clk,
 	/*Controller*/
 	wire [5:0] opcode;
 	wire [5:0] funct;
-	wire RegDst, ALUSrc, MemWrite, MemRead, MemToReg, Half, PCSrc, Jump, Jal, Jr;//RegWrite in Regfile
+    wire RegDst, ALUSrc, MemWrite, MemRead, MemToReg, Half, Branch, Jump, Jal, Jr;//RegWrite in Regfile
 	wire [3:0] ALUOp;
 
 	/*Regfile*/
@@ -59,7 +59,7 @@ module top ( clk,
 	wire Zero;
 
 	/*Mux*/
-	wire [15:0] Immediate;
+	wire [mem_size-1:0] Immediate;
 	wire [4:0] Rs;
 	wire [4:0] Rt;
 	wire [4:0] Rd;
@@ -68,9 +68,14 @@ module top ( clk,
     wire [data_size-1:0] Mux_lh_out;
 
     /*Sign_Extend*/
-    wire [31:0] Immediate_After_Sign_Extend;
-    wire [31:0] Read_data_2_half_After_Sign_Extend;
-    wire [31:0] DM_Read_Data_half_After_Sign_Extend;
+    wire [data_size-1:0] Immediate_After_Sign_Extend;
+    wire [data_size-1:0] Read_data_2_half_After_Sign_Extend;
+    wire [data_size-1:0] DM_Read_Data_half_After_Sign_Extend;
+
+    /*Jump_Ctrl*/
+	wire [1:0] JumpOP;
+    wire [bit_size-1:0] Jump_Addr;
+    wire [bit_size-1:0] Branch_Addr;
 
 	/*Mux control*/
 	//assign Write_addr = (RegDst == 1)? Instruction[15:11]: Instruction[20:16];//Rd(R):Rt(I)
@@ -105,7 +110,8 @@ module top ( clk,
     //assign DM_Write_Data = Read_data_2;
     assign DM_Address = ALU_result[17:2];
 
-
+    /*Jump_Ctrl*/
+    assign Jump_Addr = ({Immediate, 2'b0});
 
 	integer i = 0;
 	always@(posedge clk or posedge rst)
@@ -119,14 +125,16 @@ module top ( clk,
 			/****DEBUG****/
 			//$display("%d", i); i = i + 1;
 			//$display(Write_addr);
-			$display("%b", Instruction);//get instruction
-			//$display("opcode %b , funct %b", opcode, funct);//get opcode, funct
+			$display("%h", Instruction);//get instruction
+            $display("PC %h", PCout);
+            //$display("opcode %b , funct %b", opcode, funct);//get opcode, funct
 			//$display("$Rs    %b  , $Rt   %b\n", Rs, Rt);//get register
-			$display("$Rs_data = %b , $Rt_data = %b", Read_data_1, Read_data_2);//get data in register
-            $display("Immediate = %b", Immediate);
+		//	$display("$Rs_data = %b , $Rt_data = %b", Read_data_1, Read_data_2);//get data in register
+        //    $display("Immediate = %b", Immediate);
             //$display("ALUOp = %b", ALUOp);
-            $display("ALU_result = %b", ALU_result);
+        //    $display("ALU_result = %b", ALU_result);
         //    $display("DM_Address = %b, DM_Write_Data = %b\n", DM_Address, DM_Write_Data);
+        //    $display("PCin = %b", PCin);
             /****DEBUG****/
 		end
 	end
@@ -134,7 +142,7 @@ module top ( clk,
 	PC PC1(
 		.clk(clk),
 		.rst(rst),
-		.PCin(PCout_Plus4),//tamp
+		.PCin(PCin),//tamp
 		.PCout(PCout)
 	);
 
@@ -155,7 +163,7 @@ module top ( clk,
 		.MemRead(MemRead),
 		.MemToReg(MemToReg),
         .Half(Half),
-		.PCSrc(PCSrc),
+        .Branch(Branch),
         .Jump(Jump),
 		.Jal(Jal),
         .Jr(Jr)
@@ -192,7 +200,7 @@ module top ( clk,
 	Mux2to1_5bit Mux_Jr(
 		.I0(Mux_RegDst_out),
 		.I1(5'd31),//$ra
-		.S(Jr),
+		.S(Jal),
 		.out(Write_addr)//Write_addr to Regfile
 	);
 
@@ -252,4 +260,26 @@ module top ( clk,
 		.out(Write_data)//Write_data to Regfile
 	);
 
+    ADD ADD_Branch(
+        .src1(Jump_Addr),
+        .src2(PCout_Plus4),
+        .out(Branch_Addr)
+    );
+
+    Jump_Ctrl Jump_Ctrl1(
+        .Zero(Zero),
+        .JumpOP(JumpOP),
+        .Branch(Branch),
+        .Jr(Jr),
+        .Jump(Jump)
+    );
+
+    Mux4to1_18bit Mux_PC(
+        .I0(PCout_Plus4),       //JUMP_TO_PCOUT_PLUS4
+    	.I1(Branch_Addr),       //JUMP_TO_BRANCH
+        .I2(Read_data_1[17:0]), //JUMP_TO_JR
+        .I3(Jump_Addr),         //JUMP_TO_JUMP
+    	.S(JumpOP),
+    	.out(PCin)
+    );
 endmodule
