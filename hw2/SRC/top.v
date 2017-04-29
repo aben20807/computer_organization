@@ -38,7 +38,7 @@ module top ( clk,
 	/*Controller*/
 	wire [5:0] opcode;
 	wire [5:0] funct;
-	wire RegDst, ALUSrc, MemWrite, MemRead, MemToReg, PCSrc, Jump, Jal, Jr;//RegWrite in Regfile
+	wire RegDst, ALUSrc, MemWrite, MemRead, MemToReg, Half, PCSrc, Jump, Jal, Jr;//RegWrite in Regfile
 	wire [3:0] ALUOp;
 
 	/*Regfile*/
@@ -65,10 +65,12 @@ module top ( clk,
 	wire [4:0] Rd;
 	wire [4:0] Mux_RegDst_out;
 	wire [data_size-1:0] Mux_MemToReg_out;
+    wire [data_size-1:0] Mux_lh_out;
 
     /*Sign_Extend*/
     wire [31:0] Immediate_After_Sign_Extend;
-    wire [31:0] Read_data_2_After_Sign_Extend;
+    wire [31:0] Read_data_2_half_After_Sign_Extend;
+    wire [31:0] DM_Read_Data_half_After_Sign_Extend;
 
 	/*Mux control*/
 	//assign Write_addr = (RegDst == 1)? Instruction[15:11]: Instruction[20:16];//Rd(R):Rt(I)
@@ -100,7 +102,7 @@ module top ( clk,
 
     /*DM*/
     //assign DM_Write_Data = Read_data_2_After_Sign_Extend;
-    assign DM_Write_Data = Read_data_2;
+    //assign DM_Write_Data = Read_data_2;
     assign DM_Address = ALU_result[17:2];
 
 
@@ -117,14 +119,14 @@ module top ( clk,
 			/****DEBUG****/
 			//$display("%d", i); i = i + 1;
 			//$display(Write_addr);
-		//	$display("%b", Instruction);//get instruction
+			$display("%b", Instruction);//get instruction
 			//$display("opcode %b , funct %b", opcode, funct);//get opcode, funct
 			//$display("$Rs    %b  , $Rt   %b\n", Rs, Rt);//get register
-		//	$display("$Rs_data = %b , $Rt_data = %b", Read_data_1, Read_data_2);//get data in register
-        //    $display("Immediate = %b", Immediate);
+			$display("$Rs_data = %b , $Rt_data = %b", Read_data_1, Read_data_2);//get data in register
+            $display("Immediate = %b", Immediate);
             //$display("ALUOp = %b", ALUOp);
-        //    $display("ALU_result = %b", ALU_result);
-            $display("DM_Address = %b, DM_Write_Data = %b\n", DM_Address, DM_Write_Data);
+            $display("ALU_result = %b", ALU_result);
+        //    $display("DM_Address = %b, DM_Write_Data = %b\n", DM_Address, DM_Write_Data);
             /****DEBUG****/
 		end
 	end
@@ -152,6 +154,7 @@ module top ( clk,
 		.MemWrite(MemWrite),
 		.MemRead(MemRead),
 		.MemToReg(MemToReg),
+        .Half(Half),
 		.PCSrc(PCSrc),
         .Jump(Jump),
 		.Jal(Jal),
@@ -205,14 +208,33 @@ module top ( clk,
 		.out(src2)
 	);
 
-    // Sign_Extend Sign_Extend_Read_data_2(
-	// 	.sign_in(Read_data_2),
-	// 	.sign_out(Read_data_2_After_Sign_Extend)
-	// );
+    Sign_Extend Sign_Extend_sh(
+		.sign_in(Read_data_2[15:0]),
+		.sign_out(Read_data_2_half_After_Sign_Extend)
+	);
+
+    Mux2to1_32bit Mux_sh(
+        .I0(Read_data_2),
+		.I1(Read_data_2_half_After_Sign_Extend),
+		.S(Half),
+		.out(DM_Write_Data)
+    );
+
+    Sign_Extend Sign_Extend_lh(
+		.sign_in(DM_Read_Data[15:0]),
+		.sign_out(DM_Read_Data_half_After_Sign_Extend)
+	);
+
+	Mux2to1_32bit Mux_lh(
+		.I0(DM_Read_Data),
+		.I1(DM_Read_Data_half_After_Sign_Extend),
+		.S(Half),
+		.out(Mux_lh_out)
+	);
 
 	Mux2to1_32bit Mux_MemToReg(
 		.I0(ALU_result),
-		.I1(DM_Read_Data),
+		.I1(Mux_lh_out),
 		.S(MemToReg),
 		.out(Mux_MemToReg_out)
 	);

@@ -11,6 +11,7 @@ module Controller ( opcode,
 					MemWrite,
 					MemRead,
 					MemToReg,
+					Half,
 					PCSrc,
 					Jump,
 					Jal,
@@ -21,9 +22,9 @@ module Controller ( opcode,
     input  [5:0] funct;
 
 	// write your code in here
-	output RegDst, RegWrite, ALUSrc, MemWrite, MemRead, MemToReg, PCSrc, Jump, Jal, Jr;
+	output RegDst, RegWrite, ALUSrc, MemWrite, MemRead, MemToReg, Half, PCSrc, Jump, Jal, Jr;
 	output [3:0] ALUOp;
-	reg RegDst, RegWrite, ALUSrc, MemWrite, MemRead, MemToReg, PCSrc, Jump, Jal, Jr;
+	reg RegDst, RegWrite, ALUSrc, MemWrite, MemRead, MemToReg, Half, PCSrc, Jump, Jal, Jr;
 	reg [3:0] ALUOp;
 
 	/*ALUSrc*/
@@ -55,6 +56,7 @@ module Controller ( opcode,
 		MemWrite 	= 1'b0;
 		MemRead 	= 1'b0;
 		MemToReg 	= 1'b0;
+		Half		= 1'b0;
 		PCSrc 		= 1'b0;
 		Jump		= 1'b0;
 		Jal 		= 1'b0;
@@ -122,14 +124,24 @@ module Controller ( opcode,
 				ALUOp 		= OP_BNE;
 				PCSrc 		= 1'b1;
 			end
-			// 6'b100001://lh
-			// begin
-			// 	//$display("Controller lh");////TODO
-			// end
-			// 6'b101001://sh
-			// begin
-			// 	//$display("Controller sh");////TODO
-			// end
+			6'b100001://lh
+			begin
+				$display("Controller lh");////TODO
+				RegWrite 	= 1'b1;
+				ALUSrc 		= DATA_FROM_IMM;
+				ALUOp 		= OP_ADD;
+				MemRead 	= 1'b1;
+				MemToReg 	= 1'b1;
+				Half		= 1'b1;
+			end
+			6'b101001://sh
+			begin
+				//$display("Controller sh");////TODO
+				ALUSrc 		= DATA_FROM_IMM;
+				ALUOp 		= OP_ADD;
+				MemWrite 	= 1'b1;
+				Half		= 1'b1;
+			end
 			6'b000010://j
 			begin
 				$display("Controller j");
