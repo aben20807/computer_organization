@@ -26,13 +26,19 @@ module Regfile ( clk,
     // write your code in here
 	reg [bit_size-1:0] register [0:31];//32 registers
 
+
+	assign Read_data_1 = register[Read_addr_1];
+	assign Read_data_2 = register[Read_addr_2];
+
 	integer i;
 	always@(posedge clk, posedge rst)
 	begin
 		if(rst)
 		begin
 			for(i = 0; i < 32; i = i + 1)
+			begin
 				register[i] <= 32'b0;//clear address in every registers
+			end
 		end
 		else
 		begin
@@ -48,8 +54,4 @@ module Regfile ( clk,
 			end
 		end
 	end
-
-	assign Read_data_1 = register[Read_addr_1];
-	assign Read_data_2 = register[Read_addr_2];
-
 endmodule

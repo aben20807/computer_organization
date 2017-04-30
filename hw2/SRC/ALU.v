@@ -41,27 +41,27 @@ module ALU ( ALUOp,
 		ALU_result = 0;
 		Zero = 0;
 		case(ALUOp)
-			OP_AND	:ALU_result = src1 & src2;
-			OP_OR	:ALU_result = src1 | src2;
-			OP_ADD	:ALU_result = src1 + src2;
+			OP_AND:	ALU_result = src1 & src2;
+			OP_OR :	ALU_result = src1 | src2;
+			OP_ADD:	ALU_result = src1 + src2;
 			//OP_MUL:
 		  	//OP_DIV:
-		  	OP_SUB	:ALU_result = src1 - src2;
-			OP_SLT:
-			begin
-				if(src1 - src2 >= 32'b1000_0000_0000_0000_0000_0000_0000_0000)//s1 - s2 <= -1
-					ALU_result = 32'b1;
-				else
-					ALU_result = 32'b0;
-			end
-			OP_XOR	:ALU_result = src1 ^ src2;
+		  	OP_SUB:	ALU_result = src1 - src2;
+			OP_SLT:	ALU_result = (src1 - src2) >> 31;
+			// begin
+			// 	if(src1 - src2 >= 32'b1000_0000_0000_0000_0000_0000_0000_0000)//s1 - s2 <= -1
+			// 		ALU_result = 32'b1;
+			// 	else
+			// 		ALU_result = 32'b0;
+			// end
+			OP_XOR:	ALU_result = src1 ^ src2;
 			//OP_NOT:
-			OP_BEQ	:Zero = (src1 == src2)? 1: 0;
-			OP_BNE	:Zero = (src1 != src2)? 1: 0;
-			OP_NOR	:ALU_result = ~(src1 | src2);
-			OP_SLL	:ALU_result = src2 << shamt;
-			OP_SRL	:ALU_result = src2 >> shamt;
-			default	:
+			OP_BEQ:	Zero = (src1 == src2)? 1: 0;
+			OP_BNE:	Zero = (src1 != src2)? 1: 0;
+			OP_NOR:	ALU_result = ~(src1 | src2);
+			OP_SLL:	ALU_result = src2 << shamt;
+			OP_SRL:	ALU_result = src2 >> shamt;
+			default:
 			begin
 				ALU_result = 0;
 				Zero = 0;

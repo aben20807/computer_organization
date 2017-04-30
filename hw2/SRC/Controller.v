@@ -3,13 +3,11 @@
 module Controller ( opcode,
 					funct,
 					// write your code in here
-					//Zore// from ALU
 					RegDst,
 					RegWrite,
 					ALUSrc,
 					ALUOp,
 					MemWrite,
-					MemRead,
 					MemToReg,
 					Half,
 					Branch,
@@ -22,9 +20,9 @@ module Controller ( opcode,
     input  [5:0] funct;
 
 	// write your code in here
-	output RegDst, RegWrite, ALUSrc, MemWrite, MemRead, MemToReg, Half, Branch, Jump, Jal, Jr;
+	output RegDst, RegWrite, ALUSrc, MemWrite, MemToReg, Half, Branch, Jump, Jal, Jr;
 	output [3:0] ALUOp;
-	reg RegDst, RegWrite, ALUSrc, MemWrite, MemRead, MemToReg, Half, Branch, Jump, Jal, Jr;
+	reg RegDst, RegWrite, ALUSrc, MemWrite, MemToReg, Half, Branch, Jump, Jal, Jr;
 	reg [3:0] ALUOp;
 
 	/*ALUSrc*/
@@ -54,20 +52,18 @@ module Controller ( opcode,
 		ALUSrc 		= DATA_FROM_REG;
 		ALUOp 		= OP_NOP;
 		MemWrite 	= 1'b0;
-		MemRead 	= 1'b0;
 		MemToReg 	= 1'b0;
 		Half		= 1'b0;
 		Jump		= 1'b0;
 		Jal 		= 1'b0;
 		Jr 			= 1'b0;
 		case(opcode)
-			6'b100011://lw RegWrite, ALUSrc, MemRead, MemToReg
+			6'b100011://lw RegWrite, ALUSrc, MemToReg
 			begin
 				//$display("Controller lw");
 				RegWrite 	= 1'b1;
 				ALUSrc 		= DATA_FROM_IMM;
 				ALUOp 		= OP_ADD;
-				MemRead 	= 1'b1;
 				MemToReg 	= 1'b1;
 			end
 			6'b101011://sw ALUSrc, MemWrite
@@ -116,7 +112,6 @@ module Controller ( opcode,
 				RegWrite 	= 1'b1;
 				ALUSrc 		= DATA_FROM_IMM;
 				ALUOp 		= OP_ADD;
-				MemRead 	= 1'b1;
 				MemToReg 	= 1'b1;
 				Half		= 1'b1;
 			end
@@ -147,7 +142,6 @@ module Controller ( opcode,
 				ALUSrc 		= DATA_FROM_REG;
 				ALUOp 		= OP_NOP;
 				MemWrite 	= 1'b0;
-				MemRead 	= 1'b0;
 				MemToReg 	= 1'b0;
 				Half		= 1'b0;
 				Jump		= 1'b0;
