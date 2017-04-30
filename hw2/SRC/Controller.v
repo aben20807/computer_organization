@@ -54,6 +54,7 @@ module Controller ( opcode,
 		MemWrite 	= 1'b0;
 		MemToReg 	= 1'b0;
 		Half		= 1'b0;
+		Branch		= 1'b0;
 		Jump		= 1'b0;
 		Jal 		= 1'b0;
 		Jr 			= 1'b0;
@@ -144,6 +145,7 @@ module Controller ( opcode,
 				MemWrite 	= 1'b0;
 				MemToReg 	= 1'b0;
 				Half		= 1'b0;
+				Branch		= 1'b0;
 				Jump		= 1'b0;
 				Jal 		= 1'b0;
 				Jr 			= 1'b0;

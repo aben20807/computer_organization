@@ -59,16 +59,16 @@ module top ( clk,
 	wire Zero;
 
 	/*Mux*/
-    wire [bit_size-1:0] PCout_Plus4;                                            //PC + 4
-    wire [bit_size-1:0] PCout_Plus8;                                            //PC + 8 for jal
+    wire [bit_size-1:0] PCout_Plus4;                            //PC + 4
+    wire [bit_size-1:0] PCout_Plus8;                            //PC + 8 for jal
 	wire [4:0] Mux_RegDst_out;
 	wire [data_size-1:0] Mux_MemToReg_out;
     wire [data_size-1:0] Mux_lh_out;
 
     /*Sign_Extend*/
-    wire [data_size-1:0] Immediate_After_Sign_Extend;                           //for ALU
-    wire [data_size-1:0] Read_data_2_half_After_Sign_Extend;                    //for sh
-    wire [data_size-1:0] DM_Read_Data_half_After_Sign_Extend;                   //for lh
+    wire [data_size-1:0] Immediate_After_Sign_Extend;           //for ALU
+    wire [data_size-1:0] Read_data_2_half_After_Sign_Extend;    //for sh
+    wire [data_size-1:0] DM_Read_Data_half_After_Sign_Extend;   //for lh
 
     /*Jump_Ctrl*/
 	wire [1:0] JumpOP;
@@ -77,7 +77,7 @@ module top ( clk,
 
 	/*wire connection*/
 	/*PC*/
-	assign IM_Address = PCout [bit_size-1:2];                                   //output IM_Address
+	assign IM_Address = PCout [bit_size-1:2];                  //output IM_Address
 
     /*Controller*/
 	assign opcode = Instruction [31:26];
@@ -85,13 +85,13 @@ module top ( clk,
     assign DM_enable = MemWrite;
 
 	/*Regfile*/
-	assign Immediate = Instruction[15:0];                                       //get imm from Instruction
-	assign Rs_Addr = Instruction[25:21];                                        //get Rs_Addr from Instruction
-	assign Rt_Addr = Instruction[20:16];                                        //get Rt_Addr from Instruction
-	assign Rd_Addr = Instruction[15:11];                                        //get Rd_Addr from Instruction
+	assign Immediate = Instruction[15:0];                      //get imm from Instruction
+	assign Rs_Addr = Instruction[25:21];                       //get Rs_Addr from Instruction
+	assign Rt_Addr = Instruction[20:16];                       //get Rt_Addr from Instruction
+	assign Rd_Addr = Instruction[15:11];                       //get Rd_Addr from Instruction
 
 	/*ALU*/
-	assign shamt = Instruction[10:6];                                           //get shamt from Instruction
+	assign shamt = Instruction[10:6];                          //get shamt from Instruction
 	assign src1 = Read_data_1;
 
     /*DM*/
@@ -100,7 +100,7 @@ module top ( clk,
     assign DM_Address = ALU_result[17:2];
 
     /*Jump_Ctrl*/
-    assign Jump_Addr = ({Immediate, 2'b0});                                     //Jump_Addr = Immediate << 2
+    assign Jump_Addr = ({Immediate, 2'b0});                     //Jump_Addr = Immediate << 2
 
     /*//Used for debugging display
 	integer i = 0;
@@ -132,7 +132,7 @@ module top ( clk,
 	PC PC1(
 		.clk(clk),
 		.rst(rst),
-		.PCin(PCin),                                                            //(Mux_PC)JUMP_TO_PCOUT_PLUS4 or JUMP_TO_BRANCH or JUMP_TO_JR or JUMP_TO_JUMP
+		.PCin(PCin),                      //(Mux_PC)JUMP_TO_PCOUT_PLUS4 or JUMP_TO_BRANCH or JUMP_TO_JR or JUMP_TO_JUMP
 		.PCout(PCout)
 	);
 
@@ -165,11 +165,11 @@ module top ( clk,
 		.out(Mux_RegDst_out)
 	);
 
-	Mux2to1_5bit Mux_Jal1(                                                      //if jal assign Write_addr = $ra
-		.I0(Mux_RegDst_out),                                                    //(Mux_RegDst)Rt_Addr or Rd_Addr
-		.I1(5'd31),                                                             //$ra
-		.S(Jal),                                                                //from Controller1
-		.out(Write_addr)                                                        //Write_addr to Regfile
+	Mux2to1_5bit Mux_Jal1(                         //if jal assign Write_addr = $ra
+		.I0(Mux_RegDst_out),                      //(Mux_RegDst)Rt_Addr or Rd_Addr
+		.I1(5'd31),                               //$ra
+		.S(Jal),                                  //from Controller1
+		.out(Write_addr)                          //Write_addr to Regfile
 	);
 
 	Regfile Regfile1(
@@ -179,12 +179,12 @@ module top ( clk,
 		.Read_addr_2(Rt_Addr),
 		.Read_data_1(Read_data_1),
 		.Read_data_2(Read_data_2),
-		.RegWrite(RegWrite),                                                    //from Controller1
-		.Write_addr(Write_addr),                                                //(Mux_Jal1)Mux_RegDst_out or $ra
+		.RegWrite(RegWrite),                      //from Controller1
+		.Write_addr(Write_addr),                  //(Mux_Jal1)Mux_RegDst_out or $ra
 		.Write_data(Write_data)
 	);
 
-    Sign_Extend Sign_Extend_Imm(                                                //let Immediate become 32bits before goto ALU
+    Sign_Extend Sign_Extend_Imm(                    //let Immediate become 32bits before goto ALU
 		.sign_in(Immediate),
 		.sign_out(Immediate_After_Sign_Extend)
 	);
@@ -192,20 +192,20 @@ module top ( clk,
 	Mux2to1_32bit Mux_ALUSrc(
 		.I0(Immediate_After_Sign_Extend),
 		.I1(Read_data_2),
-		.S(ALUSrc),                                                             //from Controller1
+		.S(ALUSrc),                               //from Controller1
 		.out(src2)
 	);
 
 	ALU ALU1(
-		.ALUOp(ALUOp),                                                          //from Controller1
-		.src1(src1),                                                            //Read_data_1
-		.src2(src2),                                                            //(Mux_ALUSrc)Immediate_After_Sign_Extend or Read_data_2
+		.ALUOp(ALUOp),                            //from Controller1
+		.src1(src1),                              //Read_data_1
+		.src2(src2),                              //(Mux_ALUSrc)Immediate_After_Sign_Extend or Read_data_2
 		.shamt(shamt),
 		.ALU_result(ALU_result),
 		.Zero(Zero)
 	);
 
-	Sign_Extend Sign_Extend_sh(                                                 //let half of Read_data_2 become 32bits
+	Sign_Extend Sign_Extend_sh(                    //let half of Read_data_2 become 32bits
 		.sign_in(Read_data_2[15:0]),
 		.sign_out(Read_data_2_half_After_Sign_Extend)
 	);
@@ -217,7 +217,7 @@ module top ( clk,
 		.out(DM_Write_Data)
     );
 
-    Sign_Extend Sign_Extend_lh(                                                 //let half of DM_Read_Data become 32bits
+    Sign_Extend Sign_Extend_lh(                     //let half of DM_Read_Data become 32bits
 		.sign_in(DM_Read_Data[15:0]),
 		.sign_out(DM_Read_Data_half_After_Sign_Extend)
 	);
@@ -231,7 +231,7 @@ module top ( clk,
 
 	Mux2to1_32bit Mux_MemToReg(
 		.I0(ALU_result),
-		.I1(Mux_lh_out),                                                        //(Mux_lh)DM_Read_Data or DM_Read_Data_half_After_Sign_Extend
+		.I1(Mux_lh_out),                          //(Mux_lh)DM_Read_Data or DM_Read_Data_half_After_Sign_Extend
 		.S(MemToReg),
 		.out(Mux_MemToReg_out)
 	);
@@ -242,32 +242,32 @@ module top ( clk,
         .out(PCout_Plus8)
     );
 
-    Mux2to1_32bit Mux_Jal2(                                                     //if jal assign Write_data = PCout_Plus8
-		.I0(Mux_MemToReg_out),                                                  //(Mux_MemToReg)ALU_result or Mux_lh_out
-		.I1({14'b0, PCout_Plus8}),                                              //let PCout_Plus8 become 32bits
+    Mux2to1_32bit Mux_Jal2(                         //if jal assign Write_data = PCout_Plus8
+		.I0(Mux_MemToReg_out),                    //(Mux_MemToReg)ALU_result or Mux_lh_out
+		.I1({14'b0, PCout_Plus8}),                //let PCout_Plus8 become 32bits
 		.S(Jal),
-		.out(Write_data)                                                        //Write_data to Regfile
+		.out(Write_data)                          //Write_data to Regfile
 	);
 
-    ADD ADD_Branch(                                                             //beq, bne
+    ADD ADD_Branch(                                 //beq, bne
         .src1(Jump_Addr),
         .src2(PCout_Plus4),
         .out(Branch_Addr)
     );
 
     Jump_Ctrl Jump_Ctrl1(
-        .Zero(Zero),                                                            //from ALU
+        .Zero(Zero),                                //from ALU
         .JumpOP(JumpOP),
-        .Branch(Branch),                                                        //from Controller1
-        .Jr(Jr),                                                                //from Controller1
-        .Jump(Jump)                                                             //from Controller1
+        .Branch(Branch),                            //from Controller1
+        .Jr(Jr),                                    //from Controller1
+        .Jump(Jump)                                 //from Controller1
     );
 
     Mux4to1_18bit Mux_PC(
-        .I0(PCout_Plus4),                                                       //JUMP_TO_PCOUT_PLUS4
-    	.I1(Branch_Addr),                                                       //JUMP_TO_BRANCH
-        .I2(Read_data_1[17:0]),                                                 //JUMP_TO_JR
-        .I3(Jump_Addr),                                                         //JUMP_TO_JUMP
+        .I0(PCout_Plus4),                           //JUMP_TO_PCOUT_PLUS4
+    	.I1(Branch_Addr),                           //JUMP_TO_BRANCH
+        .I2(Read_data_1[17:0]),                     //JUMP_TO_JR
+        .I3(Jump_Addr),                             //JUMP_TO_JUMP
     	.S(JumpOP),
     	.out(PCin)
     );
