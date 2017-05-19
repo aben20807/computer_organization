@@ -31,8 +31,17 @@ module top ( clk,
 
 	/*wire declaration*/
 	/*PC*/
+	wire PCWrite;
 	wire [pc_size-1:0] PCin;
 	wire [pc_size-1:0] PCout;
+
+	/*IF_ID*/
+	wire IF_IDWrite, IF_Flush;
+	wire [pc_size-1:0]   IF_PC;
+	wire [data_size-1:0] IF_ir;
+
+	wire [pc_size-1:0]   ID_PC;
+	wire [data_size-1:0] ID_ir;
 
 	/*Controller*/
 	wire [5:0] opcode;
@@ -79,16 +88,20 @@ module top ( clk,
 	/*PC*/
 	assign IM_Address = PCout [pc_size-1:2];                  //output IM_Address
 
+	/*IF_ID*/
+	assign IF_PC = PCout_Plus4;
+	assign IF_ir = Instruction;
+
     /*Controller*/
-	assign opcode = Instruction [31:26];
-	assign funct = Instruction [5:0];
+	assign opcode = ID_ir[31:26];
+	assign funct = ID_ir[5:0];
     assign DM_enable = MemWrite;
 
 	/*Regfile*/
-	assign Immediate = Instruction[15:0];                      //get imm from Instruction
-	assign Rs_Addr = Instruction[25:21];                       //get Rs_Addr from Instruction
-	assign Rt_Addr = Instruction[20:16];                       //get Rt_Addr from Instruction
-	assign Rd_Addr = Instruction[15:11];                       //get Rd_Addr from Instruction
+	assign Immediate = ID_ir[15:0];                      //get imm from Instruction
+	assign Rs_Addr = ID_ir[25:21];                       //get Rs_Addr from Instruction
+	assign Rt_Addr = ID_ir[20:16];                       //get Rt_Addr from Instruction
+	assign Rd_Addr = ID_ir[15:11];                       //get Rd_Addr from Instruction
 
 	/*ALU*/
 	assign shamt = Instruction[10:6];                          //get shamt from Instruction
@@ -101,4 +114,31 @@ module top ( clk,
 
     /*Jump_Ctrl*/
     assign Jump_Addr = ({Immediate, 2'b0});
+
+	PC PC1(
+		.clk(clk),
+		.rst(rst),
+		.PCWrite(PCWrite),
+		.PCin(PCin),
+		.PCout(PCout)
+	);
+
+	ADD PC_ADD4(
+        .src1(PCout),
+        .src2(18'd4),
+        .out(PCout_Plus4)
+    );
+
+	IF_ID (
+		.clk(clk),
+	    .rst(rst),
+		// input
+		.IF_IDWrite(IF_IDWrite),
+		.IF_Flush(IF_Flush),
+		.IF_PC(IF_PC),
+	    .IF_ir(IF_ir),
+		// output
+	    .ID_PC(ID_PC),
+		.ID_ir(ID_ir)
+	);
 endmodule
