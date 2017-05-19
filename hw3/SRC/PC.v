@@ -14,18 +14,25 @@ module PC ( clk,
 	output [pc_size-1:0] PCout;
 
 	// write your code in here
-	reg [pc_size-1:0] PCout = 18'b0000_0000_0000_0000_00;
+	reg [pc_size-1:0] PCout;
 
 	always@(negedge clk, posedge rst)
 	begin
 		if(rst)
 		begin
-			PCout <= 18'b0000_0000_0000_0000_00;
+			PCout <= 18'b0;
 			//$display("rst %b", PCout);
 		end
 		else
 		begin
-			PCout <= PCin;
+			if(PCWrite)
+			begin
+				PCout <= PCin;
+			end
+			else
+			begin
+				PCout <= PCout;
+			end
 			//$display("call PC %b\n", PCout);
 		end
 	end
