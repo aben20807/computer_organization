@@ -9,6 +9,7 @@ module EX_M ( clk,
 			  // M
 			  EX_MemWrite,
 			  // write your code in here
+			  EX_Half,
 			  EX_Jal,
 			  // pipe
 			  EX_ALU_result,
@@ -22,6 +23,7 @@ module EX_M ( clk,
 			  // M
 			  M_MemWrite,
 			  // write your code in here
+			  M_Half,
 			  M_Jal,
 			  // pipe
 			  M_ALU_result,
@@ -41,6 +43,7 @@ module EX_M ( clk,
     // M
     input EX_MemWrite;
 	// write your code in here
+	input EX_Half;
 	input EX_Jal;
 	// pipe
 	input [data_size-1:0] EX_ALU_result;
@@ -54,6 +57,7 @@ module EX_M ( clk,
 	// M
 	output M_MemWrite;
 	// write your code in here
+	output M_Half;
 	output M_Jal;
 	// pipe
 	output [data_size-1:0] M_ALU_result;

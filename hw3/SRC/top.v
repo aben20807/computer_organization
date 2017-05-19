@@ -115,6 +115,35 @@ module top ( clk,
 	wire [data_size-1:0] ALU_result;
 	wire Zero;
 
+	/*EX_M*/
+	// WB
+	// wire EX_MemtoReg;
+    // wire EX_RegWrite;
+    // M
+    // wire EX_MemWrite;
+	// write your code in here
+	// wire EX_Half;
+	// wire EX_Jal;
+	// pipe
+	wire [data_size-1:0] EX_ALU_result;
+    // wire [data_size-1:0] EX_Rt_data;//TODO
+    wire [pc_size-1:0] EX_PCplus8;
+    // wire [4:0] EX_WR_out;
+
+	// WB
+	wire M_MemtoReg;
+	wire M_RegWrite;
+	// M
+	wire M_MemWrite;
+	// write your code in here
+	wire M_Half;
+	wire M_Jal;
+	// pipe
+	wire [data_size-1:0] M_ALU_result;
+	wire [data_size-1:0] M_Rt_data;
+	wire [pc_size-1:0] M_PCplus8;
+	wire [4:0] M_WR_out;
+
 	/*Mux*/
     wire [pc_size-1:0] PCout_Plus4;                            //PC + 4
     wire [pc_size-1:0] PCout_Plus8;                            //PC + 8 for jal
@@ -175,15 +204,21 @@ module top ( clk,
 
 	/*ALU*/
 	// assign shamt = Instruction[10:6];                          //get shamt from Instruction
-	assign src1 = Read_data_1;
+	// assign src1 = Read_data_1;
+	assign shamt = EX_shamt;
+
+	/*EX_M*/
+	assign EX_ALU_result = ALU_result;
+	// assign EX_Rt_data = ;//TODO
+	// assign EX_PCplus8 = ;//form PC_ADD8
 
     /*DM*/
     //assign DM_Write_Data = Read_data_2_After_Sign_Extend;
     //assign DM_Write_Data = Read_data_2;
-    assign DM_Address = ALU_result[17:2];
+    assign DM_Address = M_ALU_result[17:2];
 
     /*Jump_Ctrl*/
-    assign Jump_Addr = ({Immediate, 2'b0});
+    assign Jump_Addr = ({EX_se_imm, 2'b0});
 
 	PC PC1(
 		.clk(clk),
@@ -309,5 +344,107 @@ module top ( clk,
 		.EX_WR_out(EX_WR_out),
 		.EX_Rs(EX_Rs),
 		.EX_Rt(EX_Rt)
+	);
+
+	ADD ADD_Branch(                                 //beq, bne
+		.src1(Jump_Addr),
+		.src2(EX_PC),
+		.out(Branch_Addr)
+	);
+
+	Jump_Ctrl Jump_Ctrl1(
+		.Zero(Zero),                                //from ALU
+		.JumpOP(JumpOP),
+		.Branch(EX_Branch),                            //from Controller1
+		.Jr(EX_Jr),                                    //from Controller1
+		.Jump(EX_Jump)                                 //from Controller1
+	);
+
+	Mux4to1_18bit Mux_PC(
+        .I0(PCout_Plus4),                           //JUMP_TO_PCOUT_PLUS4
+    	.I1(Branch_Addr),                           //JUMP_TO_BRANCH
+        .I2(Read_data_1[17:0]),//TODO                     //JUMP_TO_JR
+        .I3(Jump_Addr),                             //JUMP_TO_JUMP
+    	.S(JumpOP),
+    	.out(PCin)
+    );
+
+	Mux2to1_32bit Mux_src1_forword_M_WB(//forwarding src1 from MEM or WB
+		.I0(Immediate_After_Sign_Extend),//TODO
+		.I1(Read_data_2),//TODO
+		.S(ALUSrc),  //TODO                             //from Controller1
+		.out(src2)//TODO
+	);
+
+	Mux2to1_32bit Mux_src1_isForword(//forwarding src1 or not forwarding
+		.I0(Immediate_After_Sign_Extend),//TODO
+		.I1(EX_Rs_data),
+		.S(ALUSrc),  //TODO                             //from Controller1
+		.out(src1)
+	);
+
+	Mux2to1_32bit Mux_src2_forword_M_WB(//forwarding src2 from MEM or WB
+		.I0(Immediate_After_Sign_Extend),//TODO
+		.I1(Read_data_2),//TODO
+		.S(ALUSrc),//TODO                               //from Controller1
+		.out(src2)//TODO
+	);
+
+	Mux2to1_32bit Mux_src2_isForword(//forwarding src2 or not forwarding
+		.I0(Immediate_After_Sign_Extend),//TODO
+		.I1(EX_Rt_data),
+		.S(ALUSrc),//TODO                               //from Controller1
+		.out(src2)//TODO
+	);
+
+	Mux2to1_32bit Mux_ALUSrc(
+		.I0(EX_se_imm),
+		.I1(Read_data_2),//TODO
+		.S(EX_Reg_imm),//ALUSrc                               //from Controller1
+		.out(src2)
+	);
+
+	ALU ALU1(
+		.ALUOp(EX_ALUOp),                            //from Controller1
+		.src1(src1),                              //Read_data_1
+		.src2(src2),                              //(Mux_ALUSrc)Immediate_After_Sign_Extend or Read_data_2
+		.shamt(shamt),
+		.ALU_result(ALU_result),
+		.Zero(Zero)
+	);
+
+	ADD PC_ADD8(
+        .src1(EX_PC),
+        .src2(18'd4),
+        .out(EX_PCplus8)//PCout_Plus8
+    );
+
+	EX_M EX_M1(
+		.clk(clk),
+		.rst(rst),
+		// input
+		// WB
+		.EX_MemtoReg(EX_MemtoReg),
+		.EX_RegWrite(EX_RegWrite),
+		// M
+		.EX_MemWrite(EX_MemWrite),
+		.EX_Jal(EX_Jal),
+		// pipe
+		.EX_ALU_result(EX_ALU_result),
+		.EX_Rt_data(EX_Rt_data),
+		.EX_PCplus8(EX_PCplus8),
+		.EX_WR_out(EX_WR_out),
+		// output
+		// WB
+		.M_MemtoReg(M_MemtoReg),
+		.M_RegWrite(M_RegWrite),
+		// M
+		.M_MemWrite(M_MemWrite),
+		.M_Jal(M_Jal),
+		 // pipe
+		.M_ALU_result(M_ALU_result),
+	 	.M_Rt_data(M_Rt_data),
+		.M_PCplus8(M_PCplus8),
+		.M_WR_out(M_WR_out)
 	);
 endmodule
