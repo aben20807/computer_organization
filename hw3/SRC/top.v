@@ -46,7 +46,7 @@ module top ( clk,
 	/*Controller*/
 	wire [5:0] opcode;
 	wire [5:0] funct;
-    wire RegDst, ALUSrc, MemWrite, MemRead, MemToReg, Half, Branch, Jump, Jal, Jr;//RegWrite in Regfile
+    wire RegDst, ALUSrc, MemWrite, MemToReg, Half, Branch, Jump, Jal, Jr;//RegWrite in Regfile
 	wire [3:0] ALUOp;
 
 	/*Regfile*/
@@ -198,7 +198,7 @@ module top ( clk,
     /*Controller*/
 	assign opcode = ID_ir[31:26];
 	assign funct = ID_ir[5:0];
-    assign DM_enable = M_MemWrite;
+    assign DM_enable = 1;//M_MemWrite;
 
 	/*Regfile*/
 	assign Immediate = ID_ir[15:0];                      //get imm from Instruction
@@ -326,7 +326,7 @@ module top ( clk,
 		.Read_addr_2(Rt_Addr),
 		.Read_data_1(Read_data_1),
 		.Read_data_2(Read_data_2),
-		.RegWrite(RegWrite),                      //from Controller1
+		.RegWrite(WB_RegWrite),                      //from Controller1
 		.Write_addr(WB_WR_out),               //(Mux_Jal1)Mux_RegDst_out or $ra
 		.Write_data(Write_data)
 	);
