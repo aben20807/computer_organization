@@ -40,7 +40,7 @@ module IF_ID ( clk,
 				ID_PC <= IF_PC;
 				ID_ir <= IF_ir;
 			end
-			else
+			else//keep PC, ir when stall
 			begin
 				ID_PC <= ID_PC;
 				ID_ir <= ID_ir;

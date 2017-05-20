@@ -45,13 +45,13 @@ module FU ( // input
 		begin
 			src1_forword_M_WB	= 1;
 			src1_isForword		= 1;
-			$display("Rs W FU %h", EX_Rs);
+			// $display("Rs W FU %h", EX_Rs);
 		end
 		if((M_RegWrite == 1) && (M_WR_out != 0) && (M_WR_out == EX_Rs))
 		begin
 			src1_forword_M_WB	= 0;
 			src1_isForword 		= 1;
-			$display("Rs M FU %h", EX_Rs);
+			// $display("Rs M FU %h", EX_Rs);
 		end
 
 		/*Rt*/
@@ -59,13 +59,13 @@ module FU ( // input
 		begin
 			src2_forword_M_WB	= 1;
 			src2_isForword		= 1;
-			$display("Rt w FU %h", EX_Rt);
+			// $display("Rt w FU %h", EX_Rt);
 		end
 		if((M_RegWrite == 1) && (M_WR_out != 0) && (M_WR_out == EX_Rt))
 		begin
 			src2_forword_M_WB	= 0;
 			src2_isForword 		= 1;
-			$display("Rt M FU %h", EX_Rt);
+			// $display("Rt M FU %h", EX_Rt);
 		end
 	end
 endmodule

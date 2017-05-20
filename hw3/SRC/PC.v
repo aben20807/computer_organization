@@ -30,7 +30,7 @@ module PC ( clk,
 				PCout <= PCin;
 			end
 			else
-			begin
+			begin//keep PC when stall
 				PCout <= PCout;
 			end
 			//$display("call PC %b\n", PCout);

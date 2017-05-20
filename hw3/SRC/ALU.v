@@ -46,7 +46,7 @@ module ALU ( ALUOp,
 			OP_ADD:
 			begin
 				ALU_result = src1 + src2;
-				$display("%d + %d = %d", src1, src2, ALU_result);
+				// $display("%d + %d = %d", src1, src2, ALU_result);
 			end
 			//OP_MUL:
 		  	//OP_DIV:

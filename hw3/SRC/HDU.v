@@ -40,12 +40,12 @@ module HDU ( // input
 		IF_Flush	= 0;
 		ID_Flush	= 0;
 
-		if(EX_JumpOP != 0)
+		if(EX_JumpOP != 0)//always no taken
 		begin
 			IF_Flush	= 1;
 			ID_Flush	= 1;
 		end
-		if((EX_MemtoReg == 1) && ((EX_WR_out == ID_Rs) || (EX_WR_out == ID_Rt)))
+		if((EX_MemtoReg == 1) && ((EX_WR_out == ID_Rs) || (EX_WR_out == ID_Rt)))//stall if need to write back
 		begin
 			PCWrite		= 0;
 			IF_IDWrite	= 0;

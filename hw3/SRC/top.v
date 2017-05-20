@@ -131,7 +131,7 @@ module top ( clk,
 	// wire EX_Jal;
 	// pipe
 	wire [data_size-1:0] EX_ALU_result;
-    // wire [data_size-1:0] EX_Rt_data;//TODO
+    // wire [data_size-1:0] EX_Rt_data;
     wire [pc_size-1:0] EX_PCplus8;
     // wire [4:0] EX_WR_out;
 	// WB
@@ -177,7 +177,7 @@ module top ( clk,
 
     /*Sign_Extend*/
     wire [data_size-1:0] Immediate_After_Sign_Extend;           //for ALU
-    wire [data_size-1:0] M_Rt_data_half_After_Sign_Extend;    //for sh
+    wire [data_size-1:0] M_Rt_data_half_After_Sign_Extend;    	//for sh
     wire [data_size-1:0] DM_Read_Data_half_After_Sign_Extend;   //for lh
 
 	/*FU*/
@@ -237,7 +237,7 @@ module top ( clk,
 
 	/*EX_M*/
 	// assign EX_ALU_result = ALU_result;
-	// assign EX_Rt_data = ;//TODO
+	// assign EX_Rt_data = ;
 	// assign EX_PCplus8 = ;//form PC_ADD8
 	// assign EX_Rt_data = src2_isForword_out;
 
@@ -249,7 +249,7 @@ module top ( clk,
     /*Jump_Ctrl*/
     assign Jump_Addr = ({EX_se_imm, 2'b0});
 
-	//Used for debugging display
+	/*//Used for debugging display
 	integer i = 0;
 	always@(posedge clk, posedge rst)
 	begin
@@ -265,7 +265,7 @@ module top ( clk,
 			//$display("%h", Instruction);//get instruction
             //$display("PC %h", PCout);
             //$display("opcode %b , funct %b", opcode, funct);//get opcode, funct
-			$display("$Rs    %b  , $Rt   %b", Rs_Addr, Rt_Addr);//get register
+			//$display("$Rs    %b  , $Rt   %b", Rs_Addr, Rt_Addr);//get register
 		    //$display("$Rs_data = %b , $Rt_data = %b", Read_data_1, Read_data_2);//get data in register
             //$display("Immediate = %b", Immediate);
             //$display("ALUOp = %b", ALUOp);
@@ -274,7 +274,7 @@ module top ( clk,
 			//$display("\n");
 			//****DEBUG****
 		end
-	end
+	end*/
 
 
 	PC PC1(
@@ -327,12 +327,12 @@ module top ( clk,
 		.Read_addr_2(Rt_Addr),
 		.Read_data_1(Read_data_1),
 		.Read_data_2(Read_data_2),
-		.RegWrite(WB_RegWrite),                      //from Controller1
-		.Write_addr(WB_WR_out),               //(Mux_Jal1)Mux_RegDst_out or $ra
+		.RegWrite(WB_RegWrite),					//from Controller1
+		.Write_addr(WB_WR_out),					//(Mux_Jal1)Mux_RegDst_out or $ra
 		.Write_data(Write_data)
 	);
 
-    Sign_Extend Sign_Extend_Imm(                    //let Immediate become 32bits before goto ALU
+    Sign_Extend Sign_Extend_Imm(				//let Immediate become 32bits before goto ALU
 		.sign_in(Immediate),
 		.sign_out(Immediate_After_Sign_Extend)
 	);
@@ -344,10 +344,10 @@ module top ( clk,
 		.out(Mux_RegDst_out)
 	);
 
-	Mux2to1_5bit Mux_Jal1(                         //if jal assign Write_addr = $ra
-		.I0(Mux_RegDst_out),                      //(Mux_RegDst)Rt_Addr or Rd_Addr
-		.I1(5'd31),                               //$ra
-		.S(Jal),                                  //from Controller1
+	Mux2to1_5bit Mux_Jal1(						//if jal assign Write_addr = $ra
+		.I0(Mux_RegDst_out),					//(Mux_RegDst)Rt_Addr or Rd_Addr
+		.I1(5'd31),								//$ra
+		.S(Jal),								//from Controller1
 		.out(Jal1_out)                          //Write_addr to Regfile
 	);
 
@@ -403,68 +403,68 @@ module top ( clk,
 		.EX_Rt(EX_Rt)
 	);
 
-	ADD ADD_Branch(                                 //beq, bne
+	ADD ADD_Branch(							//beq, bne
 		.src1(Jump_Addr),
 		.src2(EX_PC),
 		.out(Branch_Addr)
 	);
 
 	Jump_Ctrl Jump_Ctrl1(
-		.Zero(Zero),                                //from ALU
+		.Zero(Zero),						//from ALU
 		.JumpOP(JumpOP),
-		.Branch(EX_Branch),                            //from Controller1
-		.Jr(EX_Jr),                                    //from Controller1
-		.Jump(EX_Jump)                                 //from Controller1
+		.Branch(EX_Branch),					//from Controller1
+		.Jr(EX_Jr),							//from Controller1
+		.Jump(EX_Jump)						//from Controller1
 	);
 
 	Mux4to1_18bit Mux_PC(
-        .I0(PCout_Plus4),                           //JUMP_TO_PCOUT_PLUS4
-    	.I1(Branch_Addr),                           //JUMP_TO_BRANCH
-        .I2(ALU_src1[17:0]),                    //JUMP_TO_JR
-        .I3(Jump_Addr),                             //JUMP_TO_JUMP
+        .I0(PCout_Plus4),					//JUMP_TO_PCOUT_PLUS4
+    	.I1(Branch_Addr),					//JUMP_TO_BRANCH
+        .I2(ALU_src1[17:0]),				//JUMP_TO_JR
+        .I3(Jump_Addr),						//JUMP_TO_JUMP
     	.S(JumpOP),
     	.out(PCin)
     );
 
-	Mux2to1_32bit Mux_src1_forword_M_WB(//forwarding src1 from MEM or WB
+	Mux2to1_32bit Mux_src1_forword_M_WB(	//forwarding src1 from MEM or WB
 		.I0(M_WD_out),
 		.I1(Mux_MemToReg_out),
-		.S(src1_forword_M_WB),                             //from Controller1
+		.S(src1_forword_M_WB),				//from Controller1
 		.out(src1_forword_M_WB_out)
 	);
 
-	Mux2to1_32bit Mux_src1_isForword(//forwarding src1 or not forwarding
+	Mux2to1_32bit Mux_src1_isForword(		//forwarding src1 or not forwarding
 		.I0(EX_Rs_data),
 		.I1(src1_forword_M_WB_out),
-		.S(src1_isForword),                             //from Controller1
+		.S(src1_isForword),					//from Controller1
 		.out(ALU_src1)
 	);
 
-	Mux2to1_32bit Mux_src2_forword_M_WB(//forwarding src2 from MEM or WB
+	Mux2to1_32bit Mux_src2_forword_M_WB(	//forwarding src2 from MEM or WB
 		.I0(M_WD_out),
 		.I1(Mux_MemToReg_out),
-		.S(src2_forword_M_WB),                               //from Controller1
+		.S(src2_forword_M_WB),				//from Controller1
 		.out(src2_forword_M_WB_out)
 	);
 
-	Mux2to1_32bit Mux_src2_isForword(//forwarding src2 or not forwarding
+	Mux2to1_32bit Mux_src2_isForword(		//forwarding src2 or not forwarding
 		.I0(EX_Rt_data),
 		.I1(src2_forword_M_WB_out),
-		.S(src2_isForword),                               //from Controller1
+		.S(src2_isForword),					//from Controller1
 		.out(src2_isForword_out)
 	);
 
 	Mux2to1_32bit Mux_ALUSrc(
 		.I0(EX_se_imm),
 		.I1(src2_isForword_out),
-		.S(EX_Reg_imm),//ALUSrc                               //from Controller1
+		.S(EX_Reg_imm),						//ALUSrc //from Controller1
 		.out(ALU_src2)
 	);
 
 	ALU ALU1(
-		.ALUOp(EX_ALUOp),                            //from Controller1
-		.src1(ALU_src1),                              //Read_data_1
-		.src2(ALU_src2),                              //(Mux_ALUSrc)Immediate_After_Sign_Extend or Read_data_2
+		.ALUOp(EX_ALUOp),				//from Controller1
+		.src1(ALU_src1),				//Read_data_1
+		.src2(ALU_src2),				//(Mux_ALUSrc)Immediate_After_Sign_Extend or Read_data_2
 		.shamt(EX_shamt),
 		.ALU_result(EX_ALU_result),
 		.Zero(Zero)
@@ -473,7 +473,7 @@ module top ( clk,
 	ADD PC_ADD8(
         .src1(EX_PC),
         .src2(18'd4),
-        .out(EX_PCplus8)//PCout_Plus8
+        .out(EX_PCplus8)				//PCout_Plus8
     );
 
 	EX_M EX_M1(
@@ -507,7 +507,7 @@ module top ( clk,
 		.M_WR_out(M_WR_out)
 	);
 
-	Sign_Extend Sign_Extend_sh(                    //let half of Read_data_2 become 32bits
+	Sign_Extend Sign_Extend_sh(		//let half of Read_data_2 become 32bits
 		.sign_in(M_Rt_data[15:0]),
 		.sign_out(M_Rt_data_half_After_Sign_Extend)
 	);
@@ -519,7 +519,7 @@ module top ( clk,
 		.out(DM_Write_Data)
     );
 
-	Sign_Extend Sign_Extend_lh(                     //let half of DM_Read_Data become 32bits
+	Sign_Extend Sign_Extend_lh(		//let half of DM_Read_Data become 32bits
 		.sign_in(DM_Read_Data[15:0]),
 		.sign_out(DM_Read_Data_half_After_Sign_Extend)
 	);
@@ -531,11 +531,11 @@ module top ( clk,
 		.out(M_DM_Read_Data)
 	);
 
-	Mux2to1_32bit Mux_Jal2(                         //if jal assign Write_data = PCout_Plus8
-		.I0(M_ALU_result),                    //(Mux_MemToReg)ALU_result or Mux_lh_out
-		.I1({14'b0, M_PCplus8}),                //let PCout_Plus8 become 32bits
+	Mux2to1_32bit Mux_Jal2(		//if jal assign Write_data = PCout_Plus8
+		.I0(M_ALU_result),		//(Mux_MemToReg)ALU_result or Mux_lh_out
+		.I1({14'b0, M_PCplus8}),//let PCout_Plus8 become 32bits
 		.S(M_Jal),
-		.out(M_WD_out)                          //Write_data to Regfile
+		.out(M_WD_out)			//Write_data to Regfile
 	);
 
 	M_WB M_WB1(
@@ -561,7 +561,7 @@ module top ( clk,
 
 	Mux2to1_32bit Mux_MemToReg(
 		.I0(WB_WD_out),
-		.I1(WB_DM_Read_Data),                          //(Mux_lh)DM_Read_Data or DM_Read_Data_half_After_Sign_Extend
+		.I1(WB_DM_Read_Data),		//(Mux_lh)DM_Read_Data or DM_Read_Data_half_After_Sign_Extend
 		.S(WB_MemtoReg),
 		.out(Mux_MemToReg_out)
 	);
