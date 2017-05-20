@@ -134,7 +134,6 @@ module top ( clk,
     // wire [data_size-1:0] EX_Rt_data;//TODO
     wire [pc_size-1:0] EX_PCplus8;
     // wire [4:0] EX_WR_out;
-
 	// WB
 	wire M_MemtoReg;
 	wire M_RegWrite;
@@ -157,7 +156,6 @@ module top ( clk,
     wire [data_size-1:0] M_DM_Read_Data;
     wire [data_size-1:0] M_WD_out;
     // wire [4:0] M_WR_out;
-
 	// WB
 	wire WB_MemtoReg;
 	wire WB_RegWrite;
@@ -172,12 +170,20 @@ module top ( clk,
 	wire [4:0] Mux_RegDst_out;
 	wire [data_size-1:0] Mux_MemToReg_out;
     wire [data_size-1:0] Mux_lh_out;
+	wire [data_size-1:0] src1_forword_M_WB_out;
+	wire [data_size-1:0] src2_forword_M_WB_out;
+	wire [data_size-1:0] src2_isForword_out;
 
     /*Sign_Extend*/
     wire [data_size-1:0] Immediate_After_Sign_Extend;           //for ALU
     wire [data_size-1:0] M_Rt_data_half_After_Sign_Extend;    //for sh
     wire [data_size-1:0] DM_Read_Data_half_After_Sign_Extend;   //for lh
 
+	/*FU*/
+	wire src1_forword_M_WB;
+	wire src1_isForword;
+	wire src2_forword_M_WB;
+	wire src2_isForword;
 
 
 	/*wire connection*/
@@ -389,36 +395,36 @@ module top ( clk,
     );
 
 	Mux2to1_32bit Mux_src1_forword_M_WB(//forwarding src1 from MEM or WB
-		.I0(Immediate_After_Sign_Extend),//TODO
-		.I1(Read_data_2),//TODO
-		.S(ALUSrc),  //TODO                             //from Controller1
-		.out(src2)//TODO
+		.I0(M_WD_out),
+		.I1(Mux_MemToReg_out),
+		.S(src1_forword_M_WB),                             //from Controller1
+		.out(src1_forword_M_WB_out)
 	);
 
 	Mux2to1_32bit Mux_src1_isForword(//forwarding src1 or not forwarding
-		.I0(Immediate_After_Sign_Extend),//TODO
+		.I0(src1_forword_M_WB_out),
 		.I1(EX_Rs_data),
-		.S(ALUSrc),  //TODO                             //from Controller1
+		.S(src1_isForword),                             //from Controller1
 		.out(src1)
 	);
 
 	Mux2to1_32bit Mux_src2_forword_M_WB(//forwarding src2 from MEM or WB
-		.I0(Immediate_After_Sign_Extend),//TODO
-		.I1(Read_data_2),//TODO
-		.S(ALUSrc),//TODO                               //from Controller1
-		.out(src2)//TODO
+		.I0(M_WD_out),
+		.I1(Mux_MemToReg_out),
+		.S(src2_forword_M_WB),                               //from Controller1
+		.out(src2_forword_M_WB_out)
 	);
 
 	Mux2to1_32bit Mux_src2_isForword(//forwarding src2 or not forwarding
-		.I0(Immediate_After_Sign_Extend),//TODO
+		.I0(src2_forword_M_WB_out),
 		.I1(EX_Rt_data),
-		.S(ALUSrc),//TODO                               //from Controller1
-		.out(src2)//TODO
+		.S(src2_isForword),                               //from Controller1
+		.out(src2_isForword_out)
 	);
 
 	Mux2to1_32bit Mux_ALUSrc(
 		.I0(EX_se_imm),
-		.I1(Read_data_2),//TODO
+		.I1(src2_isForword_out),
 		.S(EX_Reg_imm),//ALUSrc                               //from Controller1
 		.out(src2)
 	);
@@ -524,5 +530,20 @@ module top ( clk,
 		.I1(WB_WD_out),                          //(Mux_lh)DM_Read_Data or DM_Read_Data_half_After_Sign_Extend
 		.S(WB_MemToReg),
 		.out(Mux_MemToReg_out)//TODO
+	);
+
+	FU FU1(
+		// input
+		.EX_Rs(EX_Rs),
+	    .EX_Rt(EX_Rt),
+		.M_RegWrite(M_RegWrite),
+		.M_WR_out(M_WR_out),
+		.WB_RegWrite(WB_RegWrite),
+		.WB_WR_out(WB_WR_out),
+		// output
+		.src1_forword_M_WB(src1_forword_M_WB),
+		.src1_isForword(src1_isForword),
+		.src2_forword_M_WB(src2_forword_M_WB),
+		.src2_isForword(src2_isForword)
 	);
 endmodule
