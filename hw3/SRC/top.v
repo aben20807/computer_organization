@@ -53,7 +53,7 @@ module top ( clk,
 	wire [data_size-1:0]Read_data_1;
 	wire [data_size-1:0]Read_data_2;
 	wire RegWrite;
-	wire [4:0] Write_addr;
+	// wire [4:0] Write_addr;
 	wire [data_size-1:0] Write_data;
     wire [mem_size-1:0] Immediate;
 	wire [4:0] Rs_Addr;
@@ -168,7 +168,7 @@ module top ( clk,
     wire [pc_size-1:0] PCout_Plus4;                            //PC + 4
     wire [pc_size-1:0] PCout_Plus8;                            //PC + 8 for jal
 	wire [4:0] Mux_RegDst_out;
-	wire [data_size-1:0] Jal1_out;
+	wire [4:0] Jal1_out;
 	wire [data_size-1:0] Mux_MemToReg_out;
     wire [data_size-1:0] Mux_lh_out;
 	wire [data_size-1:0] src1_forword_M_WB_out;
@@ -205,7 +205,7 @@ module top ( clk,
 	assign Rs_Addr = ID_ir[25:21];                       //get Rs_Addr from Instruction
 	assign Rt_Addr = ID_ir[20:16];                       //get Rt_Addr from Instruction
 	assign Rd_Addr = ID_ir[15:11];                       //get Rd_Addr from Instruction
-	assign Write_addr = WB_WR_out;
+	// assign Write_addr = WB_WR_out;
 
 	/*ID_EX*/
 	assign ID_MemtoReg = MemToReg;
@@ -238,6 +238,7 @@ module top ( clk,
 	assign EX_ALU_result = ALU_result;
 	// assign EX_Rt_data = ;//TODO
 	// assign EX_PCplus8 = ;//form PC_ADD8
+	// assign EX_Rt_data = src2_isForword_out;
 
     /*DM*/
     //assign DM_Write_Data = Read_data_2_After_Sign_Extend;
@@ -246,6 +247,34 @@ module top ( clk,
 
     /*Jump_Ctrl*/
     assign Jump_Addr = ({EX_se_imm, 2'b0});
+
+	//Used for debugging display
+	integer i = 0;
+	always@(posedge clk, posedge rst)
+	begin
+		if(rst)
+		begin
+			//$display("rst PCin %b", PCin);
+		end
+		else
+		begin
+			//****DEBUG****
+			//$display("%d", i); i = i + 1;
+			//$display(Write_addr);
+			//$display("%h", Instruction);//get instruction
+            //$display("PC %h", PCout);
+            //$display("opcode %b , funct %b", opcode, funct);//get opcode, funct
+			//$display("$Rs    %b  , $Rt   %b", Rs_Addr, Rt_Addr);//get register
+		    //$display("$Rs_data = %b , $Rt_data = %b", Read_data_1, Read_data_2);//get data in register
+            //$display("Immediate = %b", Immediate);
+            //$display("ALUOp = %b", ALUOp);
+            //$display("ALU_result = %b", ALU_result);
+            //$display("DM_Address = %b, DM_Write_Data = %b\n", DM_Address, DM_Write_Data);
+			//$display("\n");
+			//****DEBUG****
+		end
+	end
+
 
 	PC PC1(
 		.clk(clk),
@@ -298,8 +327,8 @@ module top ( clk,
 		.Read_data_1(Read_data_1),
 		.Read_data_2(Read_data_2),
 		.RegWrite(RegWrite),                      //from Controller1
-		.Write_addr(Write_addr),	//TODO                //(Mux_Jal1)Mux_RegDst_out or $ra
-		.Write_data(Write_data)		//TODO
+		.Write_addr(WB_WR_out),               //(Mux_Jal1)Mux_RegDst_out or $ra
+		.Write_data(Write_data)
 	);
 
     Sign_Extend Sign_Extend_Imm(                    //let Immediate become 32bits before goto ALU
@@ -455,10 +484,11 @@ module top ( clk,
 		.EX_RegWrite(EX_RegWrite),
 		// M
 		.EX_MemWrite(EX_MemWrite),
+		.EX_Half(EX_Half),
 		.EX_Jal(EX_Jal),
 		// pipe
 		.EX_ALU_result(EX_ALU_result),
-		.EX_Rt_data(EX_Rt_data),
+		.EX_Rt_data(src2_isForword_out),
 		.EX_PCplus8(EX_PCplus8),
 		.EX_WR_out(EX_WR_out),
 		// output
@@ -467,6 +497,7 @@ module top ( clk,
 		.M_RegWrite(M_RegWrite),
 		// M
 		.M_MemWrite(M_MemWrite),
+		.M_Half(M_Half),
 		.M_Jal(M_Jal),
 		 // pipe
 		.M_ALU_result(M_ALU_result),
@@ -495,7 +526,7 @@ module top ( clk,
 	Mux2to1_32bit Mux_lh(
 		.I0(DM_Read_Data),
 		.I1(DM_Read_Data_half_After_Sign_Extend),
-		.S(Half),
+		.S(M_Half),
 		.out(M_DM_Read_Data)
 	);
 
@@ -528,9 +559,9 @@ module top ( clk,
 	);
 
 	Mux2to1_32bit Mux_MemToReg(
-		.I0(WB_DM_Read_Data),
-		.I1(WB_WD_out),                          //(Mux_lh)DM_Read_Data or DM_Read_Data_half_After_Sign_Extend
-		.S(WB_MemToReg),
+		.I0(WB_WD_out),
+		.I1(WB_DM_Read_Data),                          //(Mux_lh)DM_Read_Data or DM_Read_Data_half_After_Sign_Extend
+		.S(WB_MemtoReg),
 		.out(Write_data)
 	);
 
@@ -555,7 +586,7 @@ module top ( clk,
 	    .ID_Rt(ID_Rt),
 		.EX_WR_out(EX_WR_out),
 		.EX_MemtoReg(EX_MemtoReg),
-		.EX_JumpOP(EX_JumpOP),
+		.EX_JumpOP(JumpOP),
 		// output
 		.PCWrite(PCWrite),
 		.IF_IDWrite(IF_IDWrite),

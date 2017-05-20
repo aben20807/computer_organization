@@ -71,6 +71,7 @@ module EX_M ( clk,
 	reg M_RegWrite;
 	// M
 	reg M_MemWrite;
+	reg M_Half;
 	reg M_Jal;
 	// pipe
 	reg [data_size-1:0] M_ALU_result;
@@ -86,6 +87,7 @@ module EX_M ( clk,
 			M_RegWrite	<= 0;
 			// M
 			M_MemWrite	<= 0;
+			M_Half		<= 0;
 			M_Jal		<= 0;
 			// pipe
 			M_ALU_result<= 32'b0;
@@ -99,6 +101,7 @@ module EX_M ( clk,
 			M_RegWrite	<= EX_RegWrite;
 			// M
 			M_MemWrite	<= EX_MemWrite;
+			M_Half		<= EX_Half;
 			M_Jal		<= EX_Jal;
 			// pipe
 			M_ALU_result<= EX_ALU_result;
