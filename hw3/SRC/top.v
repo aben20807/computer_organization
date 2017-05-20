@@ -116,8 +116,8 @@ module top ( clk,
 	/*ALU*/
 	wire [data_size-1:0] src1;
 	wire [data_size-1:0] src2;
-	wire [4:0] shamt;
-	wire [data_size-1:0] ALU_result;
+	// wire [4:0] shamt;
+	// wire [data_size-1:0] ALU_result;
 	wire Zero;
 
 	/*EX_M*/
@@ -198,7 +198,7 @@ module top ( clk,
     /*Controller*/
 	assign opcode = ID_ir[31:26];
 	assign funct = ID_ir[5:0];
-    assign DM_enable = 1;//M_MemWrite;
+    assign DM_enable = M_MemWrite;
 
 	/*Regfile*/
 	assign Immediate = ID_ir[15:0];                      //get imm from Instruction
@@ -206,6 +206,7 @@ module top ( clk,
 	assign Rt_Addr = ID_ir[20:16];                       //get Rt_Addr from Instruction
 	assign Rd_Addr = ID_ir[15:11];                       //get Rd_Addr from Instruction
 	// assign Write_addr = WB_WR_out;
+	assign Write_data = Mux_MemToReg_out;
 
 	/*ID_EX*/
 	assign ID_MemtoReg = MemToReg;
@@ -232,10 +233,10 @@ module top ( clk,
 	/*ALU*/
 	// assign shamt = Instruction[10:6];                          //get shamt from Instruction
 	// assign src1 = Read_data_1;
-	assign shamt = EX_shamt;
+	// assign shamt = EX_shamt;
 
 	/*EX_M*/
-	assign EX_ALU_result = ALU_result;
+	// assign EX_ALU_result = ALU_result;
 	// assign EX_Rt_data = ;//TODO
 	// assign EX_PCplus8 = ;//form PC_ADD8
 	// assign EX_Rt_data = src2_isForword_out;
@@ -433,8 +434,8 @@ module top ( clk,
 	);
 
 	Mux2to1_32bit Mux_src1_isForword(//forwarding src1 or not forwarding
-		.I0(src1_forword_M_WB_out),
-		.I1(EX_Rs_data),
+		.I0(EX_Rs_data),
+		.I1(src1_forword_M_WB_out),
 		.S(src1_isForword),                             //from Controller1
 		.out(src1)
 	);
@@ -447,8 +448,8 @@ module top ( clk,
 	);
 
 	Mux2to1_32bit Mux_src2_isForword(//forwarding src2 or not forwarding
-		.I0(src2_forword_M_WB_out),
-		.I1(EX_Rt_data),
+		.I0(EX_Rt_data),
+		.I1(src2_forword_M_WB_out),
 		.S(src2_isForword),                               //from Controller1
 		.out(src2_isForword_out)
 	);
@@ -464,8 +465,8 @@ module top ( clk,
 		.ALUOp(EX_ALUOp),                            //from Controller1
 		.src1(src1),                              //Read_data_1
 		.src2(src2),                              //(Mux_ALUSrc)Immediate_After_Sign_Extend or Read_data_2
-		.shamt(shamt),
-		.ALU_result(ALU_result),
+		.shamt(EX_shamt),
+		.ALU_result(EX_ALU_result),
 		.Zero(Zero)
 	);
 
@@ -562,7 +563,7 @@ module top ( clk,
 		.I0(WB_WD_out),
 		.I1(WB_DM_Read_Data),                          //(Mux_lh)DM_Read_Data or DM_Read_Data_half_After_Sign_Extend
 		.S(WB_MemtoReg),
-		.out(Write_data)
+		.out(Mux_MemToReg_out)
 	);
 
 	FU FU1(
