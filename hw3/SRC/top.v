@@ -201,10 +201,10 @@ module top ( clk,
     assign DM_enable = M_MemWrite;
 
 	/*Regfile*/
-	assign Immediate = ID_ir[15:0];                      //get imm from Instruction
-	assign Rs_Addr = ID_ir[25:21];                       //get Rs_Addr from Instruction
-	assign Rt_Addr = ID_ir[20:16];                       //get Rt_Addr from Instruction
-	assign Rd_Addr = ID_ir[15:11];                       //get Rd_Addr from Instruction
+	assign Immediate = ID_ir[15:0];                      //get imm from ID_ir
+	assign Rs_Addr = ID_ir[25:21];                       //get Rs_Addr from ID_ir
+	assign Rt_Addr = ID_ir[20:16];                       //get Rt_Addr from ID_ir
+	assign Rd_Addr = ID_ir[15:11];                       //get Rd_Addr from ID_ir
 	// assign Write_addr = WB_WR_out;
 	assign Write_data = Mux_MemToReg_out;
 
@@ -327,8 +327,8 @@ module top ( clk,
 		.Read_addr_2(Rt_Addr),
 		.Read_data_1(Read_data_1),
 		.Read_data_2(Read_data_2),
-		.RegWrite(WB_RegWrite),					//from Controller1
-		.Write_addr(WB_WR_out),					//(Mux_Jal1)Mux_RegDst_out or $ra
+		.RegWrite(WB_RegWrite),					//from M_WB
+		.Write_addr(WB_WR_out),					//from M_WB
 		.Write_data(Write_data)
 	);
 
@@ -412,9 +412,9 @@ module top ( clk,
 	Jump_Ctrl Jump_Ctrl1(
 		.Zero(Zero),						//from ALU
 		.JumpOP(JumpOP),
-		.Branch(EX_Branch),					//from Controller1
-		.Jr(EX_Jr),							//from Controller1
-		.Jump(EX_Jump)						//from Controller1
+		.Branch(EX_Branch),					//from ID_EX
+		.Jr(EX_Jr),							//from ID_EX
+		.Jump(EX_Jump)						//from ID_EX
 	);
 
 	Mux4to1_18bit Mux_PC(
@@ -429,42 +429,42 @@ module top ( clk,
 	Mux2to1_32bit Mux_src1_forword_M_WB(	//forwarding src1 from MEM or WB
 		.I0(M_WD_out),
 		.I1(Mux_MemToReg_out),
-		.S(src1_forword_M_WB),				//from Controller1
+		.S(src1_forword_M_WB),				//from FU
 		.out(src1_forword_M_WB_out)
 	);
 
 	Mux2to1_32bit Mux_src1_isForword(		//forwarding src1 or not forwarding
 		.I0(EX_Rs_data),
 		.I1(src1_forword_M_WB_out),
-		.S(src1_isForword),					//from Controller1
+		.S(src1_isForword),					//from FU
 		.out(ALU_src1)
 	);
 
 	Mux2to1_32bit Mux_src2_forword_M_WB(	//forwarding src2 from MEM or WB
 		.I0(M_WD_out),
 		.I1(Mux_MemToReg_out),
-		.S(src2_forword_M_WB),				//from Controller1
+		.S(src2_forword_M_WB),				//from FU
 		.out(src2_forword_M_WB_out)
 	);
 
 	Mux2to1_32bit Mux_src2_isForword(		//forwarding src2 or not forwarding
 		.I0(EX_Rt_data),
 		.I1(src2_forword_M_WB_out),
-		.S(src2_isForword),					//from Controller1
+		.S(src2_isForword),					//from FU
 		.out(src2_isForword_out)
 	);
 
 	Mux2to1_32bit Mux_ALUSrc(
 		.I0(EX_se_imm),
 		.I1(src2_isForword_out),
-		.S(EX_Reg_imm),						//ALUSrc //from Controller1
+		.S(EX_Reg_imm),						//ALUSrc
 		.out(ALU_src2)
 	);
 
 	ALU ALU1(
-		.ALUOp(EX_ALUOp),				//from Controller1
-		.src1(ALU_src1),				//Read_data_1
-		.src2(ALU_src2),				//(Mux_ALUSrc)Immediate_After_Sign_Extend or Read_data_2
+		.ALUOp(EX_ALUOp),				//from ID_EX
+		.src1(ALU_src1),
+		.src2(ALU_src2),
 		.shamt(EX_shamt),
 		.ALU_result(EX_ALU_result),
 		.Zero(Zero)
@@ -532,10 +532,10 @@ module top ( clk,
 	);
 
 	Mux2to1_32bit Mux_Jal2(		//if jal assign Write_data = PCout_Plus8
-		.I0(M_ALU_result),		//(Mux_MemToReg)ALU_result or Mux_lh_out
+		.I0(M_ALU_result),
 		.I1({14'b0, M_PCplus8}),//let PCout_Plus8 become 32bits
 		.S(M_Jal),
-		.out(M_WD_out)			//Write_data to Regfile
+		.out(M_WD_out)
 	);
 
 	M_WB M_WB1(
@@ -561,7 +561,7 @@ module top ( clk,
 
 	Mux2to1_32bit Mux_MemToReg(
 		.I0(WB_WD_out),
-		.I1(WB_DM_Read_Data),		//(Mux_lh)DM_Read_Data or DM_Read_Data_half_After_Sign_Extend
+		.I1(WB_DM_Read_Data),
 		.S(WB_MemtoReg),
 		.out(Mux_MemToReg_out)
 	);
