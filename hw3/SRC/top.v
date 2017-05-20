@@ -168,6 +168,7 @@ module top ( clk,
     wire [pc_size-1:0] PCout_Plus4;                            //PC + 4
     wire [pc_size-1:0] PCout_Plus8;                            //PC + 8 for jal
 	wire [4:0] Mux_RegDst_out;
+	wire [data_size-1:0] Jal1_out;
 	wire [data_size-1:0] Mux_MemToReg_out;
     wire [data_size-1:0] Mux_lh_out;
 	wire [data_size-1:0] src1_forword_M_WB_out;
@@ -197,13 +198,14 @@ module top ( clk,
     /*Controller*/
 	assign opcode = ID_ir[31:26];
 	assign funct = ID_ir[5:0];
-    assign DM_enable = MemWrite;//TODO
+    assign DM_enable = M_MemWrite;
 
 	/*Regfile*/
 	assign Immediate = ID_ir[15:0];                      //get imm from Instruction
 	assign Rs_Addr = ID_ir[25:21];                       //get Rs_Addr from Instruction
 	assign Rt_Addr = ID_ir[20:16];                       //get Rt_Addr from Instruction
 	assign Rd_Addr = ID_ir[15:11];                       //get Rd_Addr from Instruction
+	assign Write_addr = WB_WR_out;
 
 	/*ID_EX*/
 	assign ID_MemtoReg = MemToReg;
@@ -223,7 +225,7 @@ module top ( clk,
 	assign ID_Rs_data = Read_data_1;
 	assign ID_Rt_data = Read_data_2;
 	assign ID_se_imm = Immediate_After_Sign_Extend;
-	assign ID_WR_out = Write_addr;
+	assign ID_WR_out = Jal1_out;
 	assign ID_Rs = Rs_Addr;
 	assign ID_Rt = Rt_Addr;
 
@@ -316,7 +318,7 @@ module top ( clk,
 		.I0(Mux_RegDst_out),                      //(Mux_RegDst)Rt_Addr or Rd_Addr
 		.I1(5'd31),                               //$ra
 		.S(Jal),                                  //from Controller1
-		.out(Write_addr)                          //Write_addr to Regfile
+		.out(Jal1_out)                          //Write_addr to Regfile
 	);
 
 	ID_EX ID_EX1(
@@ -388,7 +390,7 @@ module top ( clk,
 	Mux4to1_18bit Mux_PC(
         .I0(PCout_Plus4),                           //JUMP_TO_PCOUT_PLUS4
     	.I1(Branch_Addr),                           //JUMP_TO_BRANCH
-        .I2(Read_data_1[17:0]),//TODO                     //JUMP_TO_JR
+        .I2(src1[17:0]),                    //JUMP_TO_JR
         .I3(Jump_Addr),                             //JUMP_TO_JUMP
     	.S(JumpOP),
     	.out(PCin)
@@ -529,7 +531,7 @@ module top ( clk,
 		.I0(WB_DM_Read_Data),
 		.I1(WB_WD_out),                          //(Mux_lh)DM_Read_Data or DM_Read_Data_half_After_Sign_Extend
 		.S(WB_MemToReg),
-		.out(Mux_MemToReg_out)//TODO
+		.out(Write_data)
 	);
 
 	FU FU1(
@@ -545,5 +547,19 @@ module top ( clk,
 		.src1_isForword(src1_isForword),
 		.src2_forword_M_WB(src2_forword_M_WB),
 		.src2_isForword(src2_isForword)
+	);
+
+	HDU HDU1(
+		// input
+		.ID_Rs(ID_Rs),
+	    .ID_Rt(ID_Rt),
+		.EX_WR_out(EX_WR_out),
+		.EX_MemtoReg(EX_MemtoReg),
+		.EX_JumpOP(EX_JumpOP),
+		// output
+		.PCWrite(PCWrite),
+		.IF_IDWrite(IF_IDWrite),
+		.IF_Flush(IF_Flush),
+		.ID_Flush(ID_Flush)
 	);
 endmodule
