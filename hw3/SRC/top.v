@@ -108,6 +108,11 @@ module top ( clk,
 	wire [4:0] EX_Rs;
 	wire [4:0] EX_Rt;
 
+	/*Jump_Ctrl*/
+	wire [1:0] JumpOP;
+    wire [pc_size-1:0] Jump_Addr;
+    wire [pc_size-1:0] Branch_Addr;
+
 	/*ALU*/
 	wire [data_size-1:0] src1;
 	wire [data_size-1:0] src2;
@@ -144,6 +149,23 @@ module top ( clk,
 	wire [pc_size-1:0] M_PCplus8;
 	wire [4:0] M_WR_out;
 
+	/*M_WB*/
+	// WB
+    // wire M_MemtoReg;
+    // wire M_RegWrite;
+	// pipe
+    wire [data_size-1:0] M_DM_Read_Data;
+    wire [data_size-1:0] M_WD_out;
+    // wire [4:0] M_WR_out;
+
+	// WB
+	wire WB_MemtoReg;
+	wire WB_RegWrite;
+	// pipe
+    wire [data_size-1:0] WB_DM_Read_Data;
+    wire [data_size-1:0] WB_WD_out;
+    wire [4:0] WB_WR_out;
+
 	/*Mux*/
     wire [pc_size-1:0] PCout_Plus4;                            //PC + 4
     wire [pc_size-1:0] PCout_Plus8;                            //PC + 8 for jal
@@ -153,13 +175,10 @@ module top ( clk,
 
     /*Sign_Extend*/
     wire [data_size-1:0] Immediate_After_Sign_Extend;           //for ALU
-    wire [data_size-1:0] Read_data_2_half_After_Sign_Extend;    //for sh
+    wire [data_size-1:0] M_Rt_data_half_After_Sign_Extend;    //for sh
     wire [data_size-1:0] DM_Read_Data_half_After_Sign_Extend;   //for lh
 
-    /*Jump_Ctrl*/
-	wire [1:0] JumpOP;
-    wire [pc_size-1:0] Jump_Addr;
-    wire [pc_size-1:0] Branch_Addr;
+
 
 	/*wire connection*/
 	/*PC*/
@@ -446,5 +465,64 @@ module top ( clk,
 	 	.M_Rt_data(M_Rt_data),
 		.M_PCplus8(M_PCplus8),
 		.M_WR_out(M_WR_out)
+	);
+
+	Sign_Extend Sign_Extend_sh(                    //let half of Read_data_2 become 32bits
+		.sign_in(M_Rt_data[15:0]),
+		.sign_out(M_Rt_data_half_After_Sign_Extend)
+	);
+
+    Mux2to1_32bit Mux_sh(
+        .I0(M_Rt_data),
+		.I1(M_Rt_data_half_After_Sign_Extend),
+		.S(M_Half),
+		.out(DM_Write_Data)
+    );
+
+	Sign_Extend Sign_Extend_lh(                     //let half of DM_Read_Data become 32bits
+		.sign_in(DM_Read_Data[15:0]),
+		.sign_out(DM_Read_Data_half_After_Sign_Extend)
+	);
+
+	Mux2to1_32bit Mux_lh(
+		.I0(DM_Read_Data),
+		.I1(DM_Read_Data_half_After_Sign_Extend),
+		.S(Half),
+		.out(M_DM_Read_Data)
+	);
+
+	Mux2to1_32bit Mux_Jal2(                         //if jal assign Write_data = PCout_Plus8
+		.I0(M_ALU_result),                    //(Mux_MemToReg)ALU_result or Mux_lh_out
+		.I1({14'b0, M_PCplus8}),                //let PCout_Plus8 become 32bits
+		.S(M_Jal),
+		.out(M_WD_out)                          //Write_data to Regfile
+	);
+
+	M_WB M_WB1(
+		.clk(clk),
+		.rst(rst),
+		// input
+		// WB
+		.M_MemtoReg(M_MemtoReg),
+		.M_RegWrite(M_RegWrite),
+		// pipe
+		.M_DM_Read_Data(M_DM_Read_Data),
+		.M_WD_out(M_WD_out),
+		.M_WR_out(M_WR_out),
+		// output
+		// WB
+		.WB_MemtoReg(WB_MemtoReg),
+		.WB_RegWrite(WB_RegWrite),
+		// pipe
+		.WB_DM_Read_Data(WB_DM_Read_Data),
+		.WB_WD_out(WB_WD_out),
+	    .WB_WR_out(WB_WR_out)
+	);
+
+	Mux2to1_32bit Mux_MemToReg(
+		.I0(WB_DM_Read_Data),
+		.I1(WB_WD_out),                          //(Mux_lh)DM_Read_Data or DM_Read_Data_half_After_Sign_Extend
+		.S(WB_MemToReg),
+		.out(Mux_MemToReg_out)//TODO
 	);
 endmodule
