@@ -61,7 +61,7 @@ module Controller ( opcode,
 		case(opcode)
 			6'b100011://lw RegWrite, ALUSrc, MemToReg
 			begin
-				//$display("Controller lw");
+				$display("Controller lw");
 				RegWrite 	= 1'b1;
 				ALUSrc 		= DATA_FROM_IMM;
 				ALUOp 		= OP_ADD;
@@ -69,7 +69,7 @@ module Controller ( opcode,
 			end
 			6'b101011://sw ALUSrc, MemWrite
 			begin
-				//$display("Controller sw");
+				$display("Controller sw");
 				ALUSrc 		= DATA_FROM_IMM;
 				ALUOp 		= OP_ADD;
 				MemWrite 	= 1'b1;
@@ -82,14 +82,14 @@ module Controller ( opcode,
 			end
 			6'b001000://addi
 			begin
-				//$display("Controller addi");
+				$display("Controller addi");
 				RegWrite 	= 1'b1;
 				ALUSrc 		= DATA_FROM_IMM;
 				ALUOp 		= OP_ADD;
 			end
 			6'b001100://andi
 			begin
-				//$display("Controller andi");
+				$display("Controller andi");
 				RegWrite 	= 1'b1;
 				ALUSrc 		= DATA_FROM_IMM;
 				ALUOp 		= OP_AND;
@@ -159,19 +159,19 @@ module Controller ( opcode,
 			case(funct)
 			6'b100000://add
 			begin
-				//$display("Controller add");
+				$display("Controller add");
 				ALUOp 		= OP_ADD;
 				RegWrite 	= 1'b1;
 			end
 			6'b100010://sub
 			begin
-				//$display("Controller sub");
+				$display("Controller sub");
 				ALUOp 		= OP_SUB;
 				RegWrite 	= 1'b1;
 			end
 			6'b100100://and
 			begin
-				//$display("Controller and");
+				$display("Controller and");
 				ALUOp 		= OP_AND;
 				RegWrite 	= 1'b1;
 			end
@@ -201,7 +201,7 @@ module Controller ( opcode,
 			end
 			6'b000000://sll, shamt != 0
 			begin
-				//$display("Controller sll");
+				$display("Controller sll");
 				ALUOp 		= OP_SLL;
 				RegWrite 	= 1'b1;
 

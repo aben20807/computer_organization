@@ -161,6 +161,7 @@ module ID_EX ( clk,
 			EX_WR_out	<= 5'b0;
 			EX_Rs		<= 5'b0;
 			EX_Rt		<= 5'b0;
+			$display("flush\n");
 		end
 		else
 		begin

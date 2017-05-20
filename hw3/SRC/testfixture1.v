@@ -154,7 +154,7 @@ initial begin
   $display("        **  Simulation PASS!!     **   /^ ^ ^ \\  |");
   $display("        **                        **  |^ ^ ^ ^ |w|");
   $display("        *************** ************   \\m___m__|_|");
-  $display("         student ID :                              "); 
+  $display("         student ID : F74046284                     "); 
   $display("\n");
   $finish;
 end

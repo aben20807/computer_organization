@@ -43,7 +43,11 @@ module ALU ( ALUOp,
 		case(ALUOp)
 			OP_AND:	ALU_result = src1 & src2;
 			OP_OR :	ALU_result = src1 | src2;
-			OP_ADD:	ALU_result = src1 + src2;
+			OP_ADD:
+			begin
+				ALU_result = src1 + src2;
+				$display("%d + %d = %d", src1, src2, ALU_result);
+			end
 			//OP_MUL:
 		  	//OP_DIV:
 		  	OP_SUB:	ALU_result = src1 - src2;

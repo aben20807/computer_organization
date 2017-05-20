@@ -114,8 +114,8 @@ module top ( clk,
     wire [pc_size-1:0] Branch_Addr;
 
 	/*ALU*/
-	wire [data_size-1:0] src1;
-	wire [data_size-1:0] src2;
+	wire [data_size-1:0] ALU_src1;
+	wire [data_size-1:0] ALU_src2;
 	// wire [4:0] shamt;
 	// wire [data_size-1:0] ALU_result;
 	wire Zero;
@@ -265,7 +265,7 @@ module top ( clk,
 			//$display("%h", Instruction);//get instruction
             //$display("PC %h", PCout);
             //$display("opcode %b , funct %b", opcode, funct);//get opcode, funct
-			//$display("$Rs    %b  , $Rt   %b", Rs_Addr, Rt_Addr);//get register
+			$display("$Rs    %b  , $Rt   %b", Rs_Addr, Rt_Addr);//get register
 		    //$display("$Rs_data = %b , $Rt_data = %b", Read_data_1, Read_data_2);//get data in register
             //$display("Immediate = %b", Immediate);
             //$display("ALUOp = %b", ALUOp);
@@ -420,7 +420,7 @@ module top ( clk,
 	Mux4to1_18bit Mux_PC(
         .I0(PCout_Plus4),                           //JUMP_TO_PCOUT_PLUS4
     	.I1(Branch_Addr),                           //JUMP_TO_BRANCH
-        .I2(src1[17:0]),                    //JUMP_TO_JR
+        .I2(ALU_src1[17:0]),                    //JUMP_TO_JR
         .I3(Jump_Addr),                             //JUMP_TO_JUMP
     	.S(JumpOP),
     	.out(PCin)
@@ -437,7 +437,7 @@ module top ( clk,
 		.I0(EX_Rs_data),
 		.I1(src1_forword_M_WB_out),
 		.S(src1_isForword),                             //from Controller1
-		.out(src1)
+		.out(ALU_src1)
 	);
 
 	Mux2to1_32bit Mux_src2_forword_M_WB(//forwarding src2 from MEM or WB
@@ -458,13 +458,13 @@ module top ( clk,
 		.I0(EX_se_imm),
 		.I1(src2_isForword_out),
 		.S(EX_Reg_imm),//ALUSrc                               //from Controller1
-		.out(src2)
+		.out(ALU_src2)
 	);
 
 	ALU ALU1(
 		.ALUOp(EX_ALUOp),                            //from Controller1
-		.src1(src1),                              //Read_data_1
-		.src2(src2),                              //(Mux_ALUSrc)Immediate_After_Sign_Extend or Read_data_2
+		.src1(ALU_src1),                              //Read_data_1
+		.src2(ALU_src2),                              //(Mux_ALUSrc)Immediate_After_Sign_Extend or Read_data_2
 		.shamt(EX_shamt),
 		.ALU_result(EX_ALU_result),
 		.Zero(Zero)
