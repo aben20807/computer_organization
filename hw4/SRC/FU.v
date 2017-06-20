@@ -6,7 +6,7 @@ module FU ( // input
 			M_RegWrite,
 			M_WR_out,
 			WB_RegWrite,
-			WB_WR_out,
+			WB_WR_out
 			// output
 			// write your code in here
 			src1_forword_M_WB,

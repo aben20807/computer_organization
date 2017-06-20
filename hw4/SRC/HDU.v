@@ -5,7 +5,7 @@ module HDU ( // input
              ID_Rt,
 			 EX_WR_out,
 			 EX_MemtoReg,
-			 EX_JumpOP,
+			 EX_JumpOP
 			 // output
 			 // write your code in here
 			 PCWrite,

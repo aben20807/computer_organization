@@ -10,14 +10,14 @@ module ID_EX ( clk,
 			   // M
 			   ID_MemWrite,
 			   // write your code in here
-			   ID_Half,
+			   //TODO ID_Half,
 			   ID_Jal,
+			   ID_se_DM,
 			   // EX
 			   ID_Reg_imm,
-			   // write your code in here
+			   ID_Jump,
 			   ID_Branch,
 			   ID_Jr,
-			   ID_Jump,
 			   // pipe
 			   ID_PC,
 			   ID_ALUOp,
@@ -35,14 +35,14 @@ module ID_EX ( clk,
 			   // M
 			   EX_MemWrite,
 			   // write your code in here
-			   EX_Half,
+			   //TODO EX_Half,
 			   EX_Jal,
+			   EX_se_DM,
 			   // EX
 			   EX_Reg_imm,
-			   // write your code in here
+			   EX_Jump,
 			   EX_Branch,
 			   EX_Jr,
-			   EX_Jump,
 			   // pipe
 			   EX_PC,
 			   EX_ALUOp,
@@ -67,14 +67,14 @@ module ID_EX ( clk,
 	// M
 	input ID_MemWrite;
 	// write your code in here
-	input ID_Half;
+	//TODO input ID_Half;
 	input ID_Jal;
+	input ID_se_DM;
 	// EX
 	input ID_Reg_imm;
-	// write your code in here
+	input ID_Jump;
 	input ID_Branch;
 	input ID_Jr;
-	input ID_Jump;
 	// pipe
     input [pc_size-1:0] ID_PC;
     input [3:0] ID_ALUOp;
@@ -92,14 +92,14 @@ module ID_EX ( clk,
 	// M
 	output EX_MemWrite;
 	// write your code in here
-	output EX_Half;
+	//TODO output EX_Half;
 	output EX_Jal;
+	output EX_se_DM;
 	// EX
 	output EX_Reg_imm;
-	// write your code in here
+	output EX_Jump;
 	output EX_Branch;
 	output EX_Jr;
-	output EX_Jump;
 	// pipe
 	output [pc_size-1:0] EX_PC;
 	output [3:0] EX_ALUOp;
@@ -119,6 +119,7 @@ module ID_EX ( clk,
 	reg EX_MemWrite;
 	reg EX_Half;
 	reg EX_Jal;
+	reg EX_se_DM;
 	// EX
 	reg EX_Reg_imm;
 	reg EX_Branch;
@@ -146,6 +147,7 @@ module ID_EX ( clk,
 			EX_MemWrite	<= 0;
 			EX_Half		<= 0;
 			EX_Jal		<= 0;
+			EX_se_DM	<= 0;
 			// EX
 			EX_Reg_imm	<= 0;
 			EX_Branch	<= 0;
@@ -172,6 +174,7 @@ module ID_EX ( clk,
 			EX_MemWrite	<= ID_MemWrite;
 			EX_Half		<= ID_Half;
 			EX_Jal		<= ID_Jal;
+			EX_se_DM	<= ID_se_DM;
 			// EX
 			EX_Reg_imm	<= ID_Reg_imm;
 			EX_Branch	<= ID_Branch;
