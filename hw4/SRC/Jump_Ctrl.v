@@ -1,7 +1,7 @@
 // Jump_Ctrl
 
 module Jump_Ctrl( Zero,
-                  JumpOP
+                  JumpOP,
 				  // write your code in here
 				  Branch,
                   Jr,

@@ -14,7 +14,7 @@ module PC ( clk,
 	output [bit_size-1:0] PCout;
 
 	// write your code in here
-	reg [pc_size-1:0] PCout;
+	reg [bit_size-1:0] PCout;
 
 	always@(negedge clk, posedge rst)
 	begin

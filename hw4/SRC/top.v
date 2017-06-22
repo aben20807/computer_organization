@@ -18,47 +18,47 @@ module top ( clk,
 			 );
 
 	parameter data_size = 32;
-	parameter mem_size = 16;	
-	
+	parameter mem_size = 16;
+
 	input  clk, rst;
-	
+
 	// Instruction Memory
 	output [mem_size-1:0] IM_Address;
 	output IM_en_Read;
 	input  [data_size-1:0] Instruction;
-	
+
 	// Data Memory
 	output [mem_size-1:0] DM_Address;
 	output DM_en_Read;
 	output DM_en_Write;
-	output [data_size-1:0] DM_Write_Data;	
+	output [data_size-1:0] DM_Write_Data;
     input  [data_size-1:0] DM_Read_Data;
-	
+
 	//For use of Instruction count & hit rate caculate
 	output IC_stall_out;
 	output [data_size-1:0]I_cache_instr_out;
-	
+
 	// I$
 	wire IC_stall;
 	wire [data_size-1:0] I_cache_out;
-	
+
 	// D$
 	wire DC_stall;
 	wire [data_size-1:0] D_cache_out;
-	
+
 	// core
 	wire [mem_size-1:0] IC_Address;
 	wire [mem_size-1:0] DC_Address;
 	wire DC_Read_enable;
 	wire DC_Write_enable;
 	wire [data_size-1:0] DC_Write_Data;
-	
+
 	//For use of Instruction count
 	assign IC_stall_out=IC_stall;
 	assign I_cache_instr_out=I_cache_out;
-	
-	// I$ 
-	Cache I_cache ( 
+
+	// I$
+	Cache I_cache (
 	.clk(clk),
 	.rst(rst),
 	//to core
@@ -75,9 +75,9 @@ module top ( clk,
 	.mem_out(Instruction),
 	.mem_in()
 	);
-	
+
 	// D$
-	Cache D_cache ( 
+	Cache D_cache (
 	.clk(clk),
 	.rst(rst),
 	//to core
@@ -93,8 +93,8 @@ module top ( clk,
 	.mem_en_W(DM_en_Write),
 	.mem_out(DM_Read_Data),
 	.mem_in(DM_Write_Data)
-	);	
-	
+	);
+
 	// core
 	core core1 (
 	.clk(clk),
@@ -113,21 +113,3 @@ module top ( clk,
 	);
 
 endmodule
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

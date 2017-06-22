@@ -3,6 +3,7 @@
 module EX_M ( clk,
 			  rst,
 			  // input
+			  EX_MWrite,
 			  // WB
 			  EX_MemtoReg,
 			  EX_RegWrite,
@@ -37,6 +38,7 @@ module EX_M ( clk,
 
 	input clk, rst;
 
+	input EX_MWrite;
 	// WB
 	input EX_MemtoReg;
     input EX_RegWrite;
@@ -97,17 +99,34 @@ module EX_M ( clk,
 		end
 		else
 		begin
-			M_MemtoReg	<= EX_MemtoReg;
-			M_RegWrite	<= EX_RegWrite;
-			// M
-			M_MemWrite	<= EX_MemWrite;
-			M_Half		<= EX_Half;
-			M_Jal		<= EX_Jal;
-			// pipe
-			M_ALU_result<= EX_ALU_result;
-			M_Rt_data	<= EX_Rt_data;
-			M_PCplus8	<= EX_PCplus8;
-			M_WR_out	<= EX_WR_out;
+			if(EX_MWrite)
+			begin
+				M_MemtoReg	<= EX_MemtoReg;
+				M_RegWrite	<= EX_RegWrite;
+				// M
+				M_MemWrite	<= EX_MemWrite;
+				M_Half		<= EX_Half;
+				M_Jal		<= EX_Jal;
+				// pipe
+				M_ALU_result<= EX_ALU_result;
+				M_Rt_data	<= EX_Rt_data;
+				M_PCplus8	<= EX_PCplus8;
+				M_WR_out	<= EX_WR_out;
+			end
+			else
+			begin
+				M_MemtoReg	<= M_MemtoReg;
+				M_RegWrite	<= M_RegWrite;
+				// M
+				M_MemWrite	<= M_MemWrite;
+				M_Half		<= M_Half;
+				M_Jal		<= M_Jal;
+				// pipe
+				M_ALU_result<= M_ALU_result;
+				M_Rt_data	<= M_Rt_data;
+				M_PCplus8	<= M_PCplus8;
+				M_WR_out	<= M_WR_out;
+			end
 		end
 	end
 endmodule

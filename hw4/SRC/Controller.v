@@ -1,7 +1,7 @@
 // Controller
 
 module Controller ( opcode,
-					funct
+					funct,
 					// write your code in here
 					RegDst,
 					RegWrite,

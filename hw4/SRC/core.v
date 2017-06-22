@@ -82,7 +82,6 @@ module core (
 	wire ID_Jr;
 	wire ID_Jump;
 	// pipe
-    //wire [pc_size-1:0] ID_PC;//in IF_ID
     wire [3:0] ID_ALUOp;
     wire [4:0] ID_shamt;
     wire [data_size-1:0] ID_Rs_data;
@@ -123,19 +122,11 @@ module core (
 	/*ALU*/
 	wire [data_size-1:0] ALU_src1;
 	wire [data_size-1:0] ALU_src2;
-	// wire [4:0] shamt;
-	// wire [data_size-1:0] ALU_result;
 	wire Zero;
 
 	/*EX_M*/
 	// WB
-	// wire EX_MemtoReg;
-    // wire EX_RegWrite;
     // M
-    // wire EX_MemWrite;
-	// write your code in here
-	// wire EX_Half;
-	// wire EX_Jal;
 	// pipe
 	wire [data_size-1:0] EX_ALU_result;
     // wire [data_size-1:0] EX_Rt_data;
@@ -157,12 +148,9 @@ module core (
 
 	/*M_WB*/
 	// WB
-    // wire M_MemtoReg;
-    // wire M_RegWrite;
 	// pipe
     wire [data_size-1:0] M_DM_Read_Data;
     wire [data_size-1:0] M_WD_out;
-    // wire [4:0] M_WR_out;
 	// WB
 	wire WB_MemtoReg;
 	wire WB_RegWrite;
@@ -181,11 +169,12 @@ module core (
 	wire [data_size-1:0] src1_forword_M_WB_out;
 	wire [data_size-1:0] src2_forword_M_WB_out;
 	wire [data_size-1:0] src2_isForword_out;
+	//wire [data_size-1:0] DM_Write_Data;
 
     /*Sign_Extend*/
     wire [data_size-1:0] Immediate_After_Sign_Extend;           //for ALU
     wire [data_size-1:0] M_Rt_data_half_After_Sign_Extend;    	//for sh
-    wire [data_size-1:0] DM_Read_Data_half_After_Sign_Extend;   //for lh
+    wire [data_size-1:0] DC_Read_Data_half_After_Sign_Extend;   //for lh
 
 	/*FU*/
 	wire src1_forword_M_WB;
@@ -195,8 +184,15 @@ module core (
 
 
 	/*wire connection*/
+	/*Cache*/
+	assign IC_Address = PCout [pc_size-1:2];
+	assign DC_Address = M_ALU_result[17:2];
+	assign DC_Read_enable = M_MemtoReg;
+	assign DC_Write_enable = M_MemWrite;
+	assign DC_Write_Data = M_Rt_data;
+
 	/*PC*/
-	assign IM_Address = PCout [pc_size-1:2];                  //output IM_Address
+	//assign IM_Address = PCout [pc_size-1:2];                  //output IM_Address
 
 	/*IF_ID*/
 	assign IF_PC = PCout_Plus4;
@@ -212,7 +208,6 @@ module core (
 	assign Rs_Addr = ID_ir[25:21];                       //get Rs_Addr from ID_ir
 	assign Rt_Addr = ID_ir[20:16];                       //get Rt_Addr from ID_ir
 	assign Rd_Addr = ID_ir[15:11];                       //get Rd_Addr from ID_ir
-	// assign Write_addr = WB_WR_out;
 	assign Write_data = Mux_MemToReg_out;
 
 	/*ID_EX*/
@@ -238,20 +233,9 @@ module core (
 	assign ID_Rt = Rt_Addr;
 
 	/*ALU*/
-	// assign shamt = Instruction[10:6];                          //get shamt from Instruction
-	// assign src1 = Read_data_1;
-	// assign shamt = EX_shamt;
-
 	/*EX_M*/
-	// assign EX_ALU_result = ALU_result;
-	// assign EX_Rt_data = ;
-	// assign EX_PCplus8 = ;//form PC_ADD8
-	// assign EX_Rt_data = src2_isForword_out;
-
     /*DM*/
-    //assign DM_Write_Data = Read_data_2_After_Sign_Extend;
-    //assign DM_Write_Data = Read_data_2;
-    assign DM_Address = M_ALU_result[17:2];
+    //assign DM_Address = M_ALU_result[17:2];
 
     /*Jump_Ctrl*/
     assign Jump_Addr = ({EX_se_imm, 2'b0});
@@ -362,6 +346,7 @@ module core (
 		.clk(clk),
 	    .rst(rst),
 	    // input
+		.ID_EXWrite(ID_EXWrite),
 		.ID_Flush(ID_Flush),
 		// WB
 		.ID_MemtoReg(ID_MemtoReg),
@@ -370,6 +355,7 @@ module core (
 	 	.ID_MemWrite(ID_MemWrite),
 		.ID_Half(ID_Half),
 		.ID_Jal(ID_Jal),
+		.ID_se_DM(ID_se_DM),
 		// EX
 		.ID_Reg_imm(ID_Reg_imm),
 		.ID_Branch(ID_Branch),
@@ -393,6 +379,7 @@ module core (
 		.EX_MemWrite(EX_MemWrite),
 		.EX_Half(EX_Half),
 		.EX_Jal(EX_Jal),
+		.EX_se_DM(EX_se_DM),
 		// EX
 		.EX_Reg_imm(EX_Reg_imm),
 		.EX_Branch(EX_Branch),
@@ -487,6 +474,7 @@ module core (
 		.clk(clk),
 		.rst(rst),
 		// input
+		.EX_MWrite(EX_MWrite),
 		// WB
 		.EX_MemtoReg(EX_MemtoReg),
 		.EX_RegWrite(EX_RegWrite),
@@ -523,17 +511,17 @@ module core (
         .I0(M_Rt_data),
 		.I1(M_Rt_data_half_After_Sign_Extend),
 		.S(M_Half),
-		.out(DM_Write_Data)
+		.out(DC_Write_Data)
     );
 
 	Sign_Extend Sign_Extend_lh(		//let half of DM_Read_Data become 32bits
-		.sign_in(DM_Read_Data[15:0]),
-		.sign_out(DM_Read_Data_half_After_Sign_Extend)
+		.sign_in(DC_Read_Data[15:0]),
+		.sign_out(DC_Read_Data_half_After_Sign_Extend)
 	);
 
 	Mux2to1_32bit Mux_lh(
-		.I0(DM_Read_Data),
-		.I1(DM_Read_Data_half_After_Sign_Extend),
+		.I0(DC_Read_Data),
+		.I1(DC_Read_Data_half_After_Sign_Extend),
 		.S(M_Half),
 		.out(M_DM_Read_Data)
 	);
@@ -549,6 +537,7 @@ module core (
 		.clk(clk),
 		.rst(rst),
 		// input
+		.M_WBWrite(M_WBWrite),
 		// WB
 		.M_MemtoReg(M_MemtoReg),
 		.M_RegWrite(M_RegWrite),
@@ -595,9 +584,14 @@ module core (
 		.EX_WR_out(EX_WR_out),
 		.EX_MemtoReg(EX_MemtoReg),
 		.EX_JumpOP(JumpOP),
+		.IC_stall(IC_stall),
+		.DC_stall(DC_stall),
 		// output
 		.PCWrite(PCWrite),
 		.IF_IDWrite(IF_IDWrite),
+		.ID_EXWrite(ID_EXWrite),
+		.EX_MWrite(EX_MWrite),
+		.M_WBWrite(M_WBWrite),
 		.IF_Flush(IF_Flush),
 		.ID_Flush(ID_Flush)
 	);

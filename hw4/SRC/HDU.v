@@ -5,7 +5,7 @@ module HDU ( // input
              ID_Rt,
 			 EX_WR_out,
 			 EX_MemtoReg,
-			 EX_JumpOP
+			 EX_JumpOP,
 			 //cache stall
 			 IC_stall,
 			 DC_stall,
@@ -72,7 +72,7 @@ module HDU ( // input
 			PCWrite		= 0;
 			IF_IDWrite	= 0;
 			IF_Flush	= 0;
-			ID_Flush	= 1; 
+			ID_Flush	= 1;
 		end
 		/*cache miss*/
 		if (IC_stall == 1 || DC_stall == 1)

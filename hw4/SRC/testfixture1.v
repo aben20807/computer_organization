@@ -4,24 +4,24 @@
 `define NUM_CLK 1000
 
 module testfixture1;
-	
+
 	parameter bit_size = 32;
 	parameter mem_size = 16;
-	
+
 	reg clk, rst;
 
 	// Instruction Memory
-	wire [mem_size-1:0] IM_Address;	
+	wire [mem_size-1:0] IM_Address;
 	wire IM_en_Read;
 	wire [bit_size-1:0] Instruction;
-	
+
 	// Data Memory
 	wire [mem_size-1:0] DM_Address;
 	wire DM_en_Read;
 	wire DM_en_Write;
 	wire [bit_size-1:0] DM_Write_Data;
 	wire [bit_size-1:0] DM_Read_Data;
-	
+
 	//use for test
 	reg [31:0] golden_DM [0:1023];
 	reg err_R;
@@ -32,7 +32,7 @@ module testfixture1;
 	real miss_cnt_double;
 	wire IC_stall;
 	wire [bit_size-1:0] I_cache_out;
-	
+
 	IM IM1 (
 	.clk(clk),
 	.rst(rst),
@@ -40,8 +40,8 @@ module testfixture1;
 	.IM_en_Read(IM_en_Read),
 	.Instruction(Instruction)
 	);
-	
-	DM DM1 ( 
+
+	DM DM1 (
 	.clk(clk),
 	.rst(rst),
 	.DM_Address(DM_Address),
@@ -50,7 +50,7 @@ module testfixture1;
 	.DM_Write_Data(DM_Write_Data),
 	.DM_Read_Data(DM_Read_Data)
 	);
-	
+
 	top top1 (
 	.clk(clk),
 	.rst(rst),
@@ -67,16 +67,16 @@ module testfixture1;
 	.IC_stall_out(IC_stall),
 	.I_cache_instr_out(I_cache_out)
 	);
-	
+
 	// clk part
 	always #(`PERIOD/2) clk = ~clk;
-	
-	//cycle counting 
+
+	//cycle counting
 	always @(posedge clk or posedge rst)
 	begin
 		cycle_cnt=rst?0:cycle_cnt+1;
 	end
-	
+
 	//instruction counting & hit rate calculate
 	always @(negedge clk or posedge rst)
 	begin
@@ -105,14 +105,14 @@ module testfixture1;
 			miss_cnt_double=0;
 		end
 	end
-	
+
 	integer i;
-	
+
 	initial begin
 		clk = 0;
 		rst = 0;
 		err_R = 1;
-		
+
 		#6 rst = 1;
 		#(`PERIOD ) rst = 0;
 		#(`PERIOD );
@@ -124,8 +124,8 @@ module testfixture1;
 		$readmemh("./tb1/DM_data.dat",DM1.DM_data);
 		$readmemh("./tb1/golden_DM.dat",golden_DM);
 		//wait ( IM_Address==62 );
-		
-		
+
+
 		/*
 		if (!tag_I) begin
 			$display("============================================================================");
@@ -133,18 +133,18 @@ module testfixture1;
 			$display("============================================================================");
 			$finish;
 		end*/
-	end	
-	
+	end
+
 	// golden DM test
-	initial begin 
+	initial begin
 		wait ( IM_Address==20);
 		err_R=0;
 		wait ( IM_Address==(3*16 + 12));
 		#(`PERIOD * 12);
-		
+
 		$display("[ testfixture1.v ] Instruction test START !!");
 		for (i=0;i<12;i=i+1) begin
-			if (golden_DM[i] != DM1.DM_data[i]) begin			
+			if (golden_DM[i] != DM1.DM_data[i]) begin
 				$display("DM_data[%d] = %h  ERROR, EXPECT DM_data[%d]= %h ",i,DM1.DM_data[i],i,golden_DM[i]);
 				err_R = 1;
 			end
@@ -152,7 +152,7 @@ module testfixture1;
 				$display("DM_data[%d] = %h  PASS",i,DM1.DM_data[i]);
 			end*/
 		end
-		if (err_R) begin			
+		if (err_R) begin
 			$display("============================================================================");
 			$display("\n (T_T)  The result of DM_data is FAIL!!! there are some errors in all.\n");
 			$display("============================================================================");
@@ -161,21 +161,21 @@ module testfixture1;
 		else begin
 			$display("============================================================================");
 			$display("\n \\(^o^)/  The result of DM_data is PASS!!!\n");
-			$display("============================================================================");		
+			$display("============================================================================");
 		end
 	end
-	
-	
+
+
 	initial begin
-		
+
 		wait(Instruction == 32'h0000000c);
 		#(`PERIOD * 3);
 		hit_rate=1-(miss_cnt_double/2)/instr_cnt;
-		$display("============================================================================================"); 
-		$display("------- The simulation has finished at system call ! ---------------------------------------"); 
-		$display("------- Your cycle count is %5d ! --------------------------------------------------------",cycle_cnt); 
-		$display("------- Your instruction count is %5d ! --------------------------------------------------",instr_cnt); 
-		$display("------- Your I-Cache hit rate is %0.5f ! --------------------------------------------------",hit_rate); 
+		$display("============================================================================================");
+		$display("------- The simulation has finished at system call ! ---------------------------------------");
+		$display("------- Your cycle count is %5d ! --------------------------------------------------------",cycle_cnt);
+		$display("------- Your instruction count is %5d ! --------------------------------------------------",instr_cnt);
+		$display("------- Your I-Cache hit rate is %0.5f ! --------------------------------------------------",hit_rate);
 		$display("============================================================================================");
 		if(!err_R && hit_rate > 0.5)
 		begin
@@ -188,42 +188,42 @@ module testfixture1;
 				$display("        **  Simulation PASS!!     **   /^ ^ ^ \\  |");
 				$display("        **                        **  |^ ^ ^ ^ |w|");
 				$display("        *************** ************   \\m___m__|_|");
-				$display("         student ID :                              "); 
+				$display("         student ID : F74046284                    "); 
 				$display("\n");
 		end
 		else if(hit_rate <= 0.5)
-		begin 
+		begin
 				$display("================================================================================================================");
-				$display("--------------------------- (/`n`)/ ~#  There was something wrong with your code !! ----------------------------"); 
-				$display("----------------- The cache didn't work well. The hit rate is too low. Please check it !!! ---------------------"); 
+				$display("--------------------------- (/`n`)/ ~#  There was something wrong with your code !! ----------------------------");
+				$display("----------------- The cache didn't work well. The hit rate is too low. Please check it !!! ---------------------");
 				$display("================================================================================================================");
 		end
 		else
-		begin 
+		begin
 				$display("================================================================================================================");
-				$display("--------------------------- (/`n`)/ ~#  There was something wrong with your code !! ----------------------------"); 
-				$display("--------------------------- The simulation has finished with some error, Please check it !!! -------------------"); 
+				$display("--------------------------- (/`n`)/ ~#  There was something wrong with your code !! ----------------------------");
+				$display("--------------------------- The simulation has finished with some error, Please check it !!! -------------------");
 				$display("================================================================================================================");
 		end
 		$finish;
 	end
-	
-	// to long	
-	initial begin 
+
+	// to long
+	initial begin
 		#(`PERIOD * `NUM_CLK)
 		$display("================================================================================================================");
-		$display("--------------------------- (/`n`)/ ~#  There was something wrong with your code !! ----------------------------"); 
-		$display("-----------------The simulation is timeout !!(Time Limit: 1000 cycles), Please check it !!!---------------------"); 
+		$display("--------------------------- (/`n`)/ ~#  There was something wrong with your code !! ----------------------------");
+		$display("-----------------The simulation is timeout !!(Time Limit: 1000 cycles), Please check it !!!---------------------");
 		$display("================================================================================================================");
 		$finish;
 	end
-	
+
 	initial begin
 	`ifdef VCD
 		$dumpfile("top.vcd");
 		$dumpvars;
 	`endif
 	end
-	
-	
+
+
 endmodule

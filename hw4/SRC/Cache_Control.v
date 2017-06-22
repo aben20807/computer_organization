@@ -86,7 +86,7 @@ module Cache_Control (
 			/*read*/
 			mode_read:
 			begin
-				case (cur_R_state)
+				case (curr_R_state)
 					R_Idle:
 					begin
 						Read_mem = (Read_Miss == 1)? 1: 0;
@@ -124,7 +124,7 @@ module Cache_Control (
 	begin
 		if(rst)
 		begin
-			cur_R_state <= R_Idle;
+			curr_R_state <= R_Idle;
 		end
 		else
 		begin

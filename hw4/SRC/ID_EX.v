@@ -3,6 +3,7 @@
 module ID_EX ( clk,
                rst,
                // input
+			   ID_EXWrite,
 			   ID_Flush,
 			   // WB
 			   ID_MemtoReg,
@@ -10,7 +11,8 @@ module ID_EX ( clk,
 			   // M
 			   ID_MemWrite,
 			   // write your code in here
-			   //TODO ID_Half,
+			   //TODO
+			   ID_Half,
 			   ID_Jal,
 			   ID_se_DM,
 			   // EX
@@ -35,7 +37,8 @@ module ID_EX ( clk,
 			   // M
 			   EX_MemWrite,
 			   // write your code in here
-			   //TODO EX_Half,
+			   //TODO
+			   EX_Half,
 			   EX_Jal,
 			   EX_se_DM,
 			   // EX
@@ -60,6 +63,7 @@ module ID_EX ( clk,
 
 	input clk, rst;
 	input ID_Flush;
+	input ID_EXWrite;
 
 	// WB
 	input ID_MemtoReg;
@@ -67,7 +71,8 @@ module ID_EX ( clk,
 	// M
 	input ID_MemWrite;
 	// write your code in here
-	//TODO input ID_Half;
+	//TODO
+	input ID_Half;
 	input ID_Jal;
 	input ID_se_DM;
 	// EX
@@ -92,7 +97,8 @@ module ID_EX ( clk,
 	// M
 	output EX_MemWrite;
 	// write your code in here
-	//TODO output EX_Half;
+	//TODO
+	output EX_Half;
 	output EX_Jal;
 	output EX_se_DM;
 	// EX
@@ -167,29 +173,58 @@ module ID_EX ( clk,
 		end
 		else
 		begin
-			// WB
-			EX_MemtoReg	<= ID_MemtoReg;
-			EX_RegWrite	<= ID_RegWrite;
-			// M
-			EX_MemWrite	<= ID_MemWrite;
-			EX_Half		<= ID_Half;
-			EX_Jal		<= ID_Jal;
-			EX_se_DM	<= ID_se_DM;
-			// EX
-			EX_Reg_imm	<= ID_Reg_imm;
-			EX_Branch	<= ID_Branch;
-			EX_Jr		<= ID_Jr;
-			EX_Jump		<= ID_Jump;
-			// pipe
-			EX_PC		<= ID_PC;
-			EX_ALUOp	<= ID_ALUOp;
-			EX_shamt	<= ID_shamt;
-			EX_Rs_data	<= ID_Rs_data;
-			EX_Rt_data	<= ID_Rt_data;
-			EX_se_imm	<= ID_se_imm;
-			EX_WR_out	<= ID_WR_out;
-			EX_Rs		<= ID_Rs;
-			EX_Rt		<= ID_Rt;
+			if(ID_EXWrite)
+			begin
+				// WB
+				EX_MemtoReg	<= ID_MemtoReg;
+				EX_RegWrite	<= ID_RegWrite;
+				// M
+				EX_MemWrite	<= ID_MemWrite;
+				EX_Half		<= ID_Half;
+				EX_Jal		<= ID_Jal;
+				EX_se_DM	<= ID_se_DM;
+				// EX
+				EX_Reg_imm	<= ID_Reg_imm;
+				EX_Branch	<= ID_Branch;
+				EX_Jr		<= ID_Jr;
+				EX_Jump		<= ID_Jump;
+				// pipe
+				EX_PC		<= ID_PC;
+				EX_ALUOp	<= ID_ALUOp;
+				EX_shamt	<= ID_shamt;
+				EX_Rs_data	<= ID_Rs_data;
+				EX_Rt_data	<= ID_Rt_data;
+				EX_se_imm	<= ID_se_imm;
+				EX_WR_out	<= ID_WR_out;
+				EX_Rs		<= ID_Rs;
+				EX_Rt		<= ID_Rt;
+			end
+			else
+			begin
+				// WB
+				EX_MemtoReg	<= EX_MemtoReg;
+				EX_RegWrite	<= EX_RegWrite;
+				// M
+				EX_MemWrite	<= EX_MemWrite;
+				EX_Half		<= EX_Half;
+				EX_Jal		<= EX_Jal;
+				EX_se_DM	<= EX_se_DM;
+				// EX
+				EX_Reg_imm	<= EX_Reg_imm;
+				EX_Branch	<= EX_Branch;
+				EX_Jr		<= EX_Jr;
+				EX_Jump		<= EX_Jump;
+				// pipe
+				EX_PC		<= EX_PC;
+				EX_ALUOp	<= EX_ALUOp;
+				EX_shamt	<= EX_shamt;
+				EX_Rs_data	<= EX_Rs_data;
+				EX_Rt_data	<= EX_Rt_data;
+				EX_se_imm	<= EX_se_imm;
+				EX_WR_out	<= EX_WR_out;
+				EX_Rs		<= EX_Rs;
+				EX_Rt		<= EX_Rt;
+			end
 		end
 	end
 endmodule
