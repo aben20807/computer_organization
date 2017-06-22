@@ -74,7 +74,7 @@ module HDU ( // input
 			IF_Flush	= 0;
 			ID_Flush	= 1;
 		end
-		/*cache miss*/
+		/*IC or DC miss*/
 		if (IC_stall == 1 || DC_stall == 1)
 		begin
 			PCWrite		= 0;

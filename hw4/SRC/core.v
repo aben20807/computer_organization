@@ -169,7 +169,6 @@ module core (
 	wire [data_size-1:0] src1_forword_M_WB_out;
 	wire [data_size-1:0] src2_forword_M_WB_out;
 	wire [data_size-1:0] src2_isForword_out;
-	//wire [data_size-1:0] DM_Write_Data;
 
     /*Sign_Extend*/
     wire [data_size-1:0] Immediate_After_Sign_Extend;           //for ALU
@@ -239,34 +238,6 @@ module core (
 
     /*Jump_Ctrl*/
     assign Jump_Addr = ({EX_se_imm, 2'b0});
-
-	/*//Used for debugging display
-	integer i = 0;
-	always@(posedge clk, posedge rst)
-	begin
-		if(rst)
-		begin
-			//$display("rst PCin %b", PCin);
-		end
-		else
-		begin
-			//****DEBUG****
-			//$display("%d", i); i = i + 1;
-			//$display(Write_addr);
-			//$display("%h", Instruction);//get instruction
-            //$display("PC %h", PCout);
-            //$display("opcode %b , funct %b", opcode, funct);//get opcode, funct
-			//$display("$Rs    %b  , $Rt   %b", Rs_Addr, Rt_Addr);//get register
-		    //$display("$Rs_data = %b , $Rt_data = %b", Read_data_1, Read_data_2);//get data in register
-            //$display("Immediate = %b", Immediate);
-            //$display("ALUOp = %b", ALUOp);
-            //$display("ALU_result = %b", ALU_result);
-            //$display("DM_Address = %b, DM_Write_Data = %b\n", DM_Address, DM_Write_Data);
-			//$display("\n");
-			//****DEBUG****
-		end
-	end*/
-
 
 	PC PC1(
 		.clk(clk),
@@ -355,7 +326,7 @@ module core (
 	 	.ID_MemWrite(ID_MemWrite),
 		.ID_Half(ID_Half),
 		.ID_Jal(ID_Jal),
-		.ID_se_DM(ID_se_DM),
+		//.ID_se_DM(ID_se_DM),
 		// EX
 		.ID_Reg_imm(ID_Reg_imm),
 		.ID_Branch(ID_Branch),
@@ -379,7 +350,7 @@ module core (
 		.EX_MemWrite(EX_MemWrite),
 		.EX_Half(EX_Half),
 		.EX_Jal(EX_Jal),
-		.EX_se_DM(EX_se_DM),
+		//.EX_se_DM(EX_se_DM),
 		// EX
 		.EX_Reg_imm(EX_Reg_imm),
 		.EX_Branch(EX_Branch),
