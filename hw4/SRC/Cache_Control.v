@@ -66,7 +66,7 @@ module Cache_Control (
 		Valid_enable = 0;
 		Tag_enable	 = 0;
 		Data_enable	 = 0;
-		sel_mem_core = 0;
+		sel_mem_core = 1;
 
 		stall = Read_Miss;//stall cpu, when occurring read miss
 
@@ -86,6 +86,7 @@ module Cache_Control (
 					Data_enable		= 1;
 					Tag_enable 		= 1;
 					Valid_enable	= 1;
+					sel_mem_core 	= 0;
 				end
 			endcase
 		end

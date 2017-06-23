@@ -43,7 +43,7 @@ module core (
 	wire [pc_size-1:0] PCout;
 
 	/*IF_ID*/
-	wire IF_IDWrite, IF_Flush;
+	wire IF_Flush;
 	wire [pc_size-1:0]   IF_PC;
 	wire [data_size-1:0] IF_ir;
 
@@ -161,11 +161,11 @@ module core (
 
 	/*Mux*/
     wire [pc_size-1:0] PCout_Plus4;                            //PC + 4
-    wire [pc_size-1:0] PCout_Plus8;                            //PC + 8 for jal
+    //wire [pc_size-1:0] PCout_Plus8;                            //PC + 8 for jal
 	wire [4:0] Mux_RegDst_out;
 	wire [4:0] Jal1_out;
 	wire [data_size-1:0] Mux_MemToReg_out;
-    wire [data_size-1:0] Mux_lh_out;
+    //wire [data_size-1:0] Mux_lh_out;
 	wire [data_size-1:0] src1_forword_M_WB_out;
 	wire [data_size-1:0] src2_forword_M_WB_out;
 	wire [data_size-1:0] src2_isForword_out;
@@ -181,6 +181,11 @@ module core (
 	wire src2_forword_M_WB;
 	wire src2_isForword;
 
+	/*HDU*/
+	wire IF_IDWrite;
+	wire ID_EXWrite;
+	wire EX_MWrite;
+	wire M_WBWrite;
 
 	/*wire connection*/
 	/*Cache*/
